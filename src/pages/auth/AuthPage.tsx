@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { Mail, Lock, ArrowRight, UserPlus, LogIn, Heart } from "lucide-react";
+import { Mail, Lock, ArrowRight, UserPlus, LogIn, Heart, Sparkles } from "lucide-react";
 
 export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -42,145 +42,218 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-ghost-white via-light-blue/5 to-ghost-white p-4">
-      {/* Background Decorative Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-dark-spring-green/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-light-blue/10 rounded-full blur-3xl" />
+    <div className="fixed inset-0 z-[100] bg-black">
+      {/* Background Images and Overlay */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-paynes-gray/20 to-black opacity-90" />
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.15 }}
+          transition={{ duration: 1 }}
+          className="absolute inset-0"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80&w=1920"
+            alt="AI Background"
+            className="w-full h-full object-cover"
+          />
+        </motion.div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black" />
       </div>
 
-      {/* Logo and Brand */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="absolute top-8 flex items-center gap-2 text-dark-spring-green"
-      >
-        <Heart className="h-8 w-8" />
-        <span className="text-2xl font-bold">Virtual Doctor</span>
-      </motion.div>
+      {/* Animated Particles */}
+      <div className="absolute inset-0 z-10 pointer-events-none">
+        {[...Array(30)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-dark-spring-green rounded-full"
+            initial={{
+              x: Math.random() * window.innerWidth,
+              y: Math.random() * window.innerHeight,
+              scale: Math.random() * 2,
+              opacity: Math.random() * 0.5,
+            }}
+            animate={{
+              y: [null, Math.random() * -100],
+              opacity: [null, 0],
+            }}
+            transition={{
+              duration: Math.random() * 5 + 5,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          />
+        ))}
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Card className="w-[400px] relative overflow-hidden bg-white/95 backdrop-blur-sm border-2">
-          {/* Decorative Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-dark-spring-green/10 via-transparent to-light-blue/10 z-0" />
-
-          <CardHeader className="relative z-10 space-y-1">
+      {/* Content */}
+      <div className="relative z-20 min-h-screen flex items-center overflow-y-auto">
+        <div className="container max-w-screen-xl mx-auto px-4 py-8">
+          <div className="grid md:grid-cols-2 gap-12 items-center w-full">
+            {/* Left Column - Info */}
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="flex items-center justify-center mb-4"
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-center md:text-left"
             >
-              {isSignUp ? (
-                <UserPlus className="h-8 w-8 text-dark-spring-green" />
-              ) : (
-                <LogIn className="h-8 w-8 text-dark-spring-green" />
-              )}
+              <div className="flex items-center gap-3 mb-6 justify-center md:justify-start">
+                <Heart className="h-16 w-16 text-dark-spring-green" />
+                <Sparkles className="h-10 w-10 text-dark-spring-green animate-pulse" />
+              </div>
+              <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-dark-spring-green via-light-blue to-dark-spring-green bg-clip-text text-transparent">
+                {isSignUp ? "Join Our AI Revolution" : "Welcome Back"}
+              </h1>
+              <p className="text-xl text-ghost-white/80 mb-12 leading-relaxed max-w-xl mx-auto md:mx-0">
+                {isSignUp
+                  ? "Embark on a journey to transform your business with cutting-edge AI solutions and expert guidance."
+                  : "Continue your AI journey with our expert consultation and implementation services."}
+              </p>
+
+              <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto md:mx-0">
+                <div className="space-y-6">
+                  <motion.div 
+                    className="flex items-center gap-4"
+                    whileHover={{ x: 5 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <div className="h-3 w-3 rounded-full bg-dark-spring-green" />
+                    <p className="text-ghost-white/70 text-lg">Expert AI Consultation</p>
+                  </motion.div>
+                  <motion.div 
+                    className="flex items-center gap-4"
+                    whileHover={{ x: 5 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <div className="h-3 w-3 rounded-full bg-dark-spring-green" />
+                    <p className="text-ghost-white/70 text-lg">24/7 Support</p>
+                  </motion.div>
+                </div>
+                <div className="space-y-6">
+                  <motion.div 
+                    className="flex items-center gap-4"
+                    whileHover={{ x: 5 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <div className="h-3 w-3 rounded-full bg-dark-spring-green" />
+                    <p className="text-ghost-white/70 text-lg">Custom Solutions</p>
+                  </motion.div>
+                  <motion.div 
+                    className="flex items-center gap-4"
+                    whileHover={{ x: 5 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <div className="h-3 w-3 rounded-full bg-dark-spring-green" />
+                    <p className="text-ghost-white/70 text-lg">Proven Results</p>
+                  </motion.div>
+                </div>
+              </div>
             </motion.div>
-            <CardTitle className="text-2xl font-bold text-center text-paynes-gray">
-              {isSignUp ? "Create Account" : "Welcome Back"}
-            </CardTitle>
-            <CardDescription className="text-center text-paynes-gray/60">
-              {isSignUp
-                ? "Join us for a healthier tomorrow"
-                : "Continue your healthcare journey"}
-            </CardDescription>
-          </CardHeader>
 
-          <form onSubmit={handleAuth}>
-            <CardContent className="space-y-4 relative z-10">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-                className="space-y-2"
-              >
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-paynes-gray/40" />
-                  <Input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="pl-10 bg-white/50 border-paynes-gray/20 focus:border-dark-spring-green/50 transition-colors"
-                  />
-                </div>
-              </motion.div>
+            {/* Right Column - Form */}
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <Card className="bg-black/50 border-ghost-white/10 backdrop-blur-xl mx-auto max-w-md shadow-[0_0_15px_rgba(0,255,0,0.07)]">
+                <CardHeader className="space-y-1">
+                  <motion.div 
+                    className="flex items-center justify-center mb-4"
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    {isSignUp ? (
+                      <UserPlus className="h-10 w-10 text-dark-spring-green" />
+                    ) : (
+                      <LogIn className="h-10 w-10 text-dark-spring-green" />
+                    )}
+                  </motion.div>
+                  <CardTitle className="text-2xl font-bold text-center text-ghost-white">
+                    {isSignUp ? "Create Account" : "Welcome Back"}
+                  </CardTitle>
+                  <CardDescription className="text-center text-ghost-white/60">
+                    {isSignUp
+                      ? "Join us for a smarter tomorrow"
+                      : "Continue your AI journey"}
+                  </CardDescription>
+                </CardHeader>
 
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-                className="space-y-2"
-              >
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-paynes-gray/40" />
-                  <Input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="pl-10 bg-white/50 border-paynes-gray/20 focus:border-dark-spring-green/50 transition-colors"
-                  />
-                </div>
-              </motion.div>
-            </CardContent>
+                <form onSubmit={handleAuth}>
+                  <CardContent className="space-y-4">
+                    <motion.div 
+                      className="space-y-2"
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.5 }}
+                    >
+                      <div className="relative group">
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-ghost-white/40 group-hover:text-dark-spring-green transition-colors" />
+                        <Input
+                          type="email"
+                          placeholder="Email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          className="pl-10 bg-white/5 border-ghost-white/10 text-ghost-white placeholder:text-ghost-white/40 focus:border-dark-spring-green/50 hover:border-dark-spring-green/30 transition-colors"
+                        />
+                      </div>
+                    </motion.div>
 
-            <CardFooter className="flex flex-col space-y-4 relative z-10">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="w-full"
-              >
-                <Button 
-                  className="w-full bg-dark-spring-green hover:bg-dark-spring-green/90 text-white group relative overflow-hidden"
-                  type="submit" 
-                  disabled={isLoading}
-                >
-                  <span className="relative z-10 flex items-center">
-                    {isLoading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </span>
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-dark-spring-green to-dark-spring-green/80"
-                    initial={{ x: '100%' }}
-                    whileHover={{ x: 0 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                </Button>
-              </motion.div>
+                    <motion.div 
+                      className="space-y-2"
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.6 }}
+                    >
+                      <div className="relative group">
+                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-ghost-white/40 group-hover:text-dark-spring-green transition-colors" />
+                        <Input
+                          type="password"
+                          placeholder="Password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          className="pl-10 bg-white/5 border-ghost-white/10 text-ghost-white placeholder:text-ghost-white/40 focus:border-dark-spring-green/50 hover:border-dark-spring-green/30 transition-colors"
+                        />
+                      </div>
+                    </motion.div>
+                  </CardContent>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="w-full"
-              >
-                <Button
-                  variant="ghost"
-                  className="w-full text-paynes-gray hover:text-dark-spring-green hover:bg-dark-spring-green/10 transition-colors"
-                  type="button"
-                  onClick={() => setIsSignUp(!isSignUp)}
-                >
-                  {isSignUp ? "Already have an account?" : "Need an account?"}
-                </Button>
-              </motion.div>
-            </CardFooter>
-          </form>
+                  <CardFooter className="flex flex-col space-y-4">
+                    <Button 
+                      className="w-full bg-dark-spring-green hover:bg-dark-spring-green/90 text-ghost-white group relative overflow-hidden shadow-lg shadow-dark-spring-green/20"
+                      type="submit" 
+                      disabled={isLoading}
+                    >
+                      <span className="relative z-10 flex items-center">
+                        {isLoading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
+                        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                      </span>
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-dark-spring-green to-dark-spring-green/80"
+                        initial={{ x: '100%' }}
+                        whileHover={{ x: 0 }}
+                        transition={{ duration: 0.3 }}
+                      />
+                    </Button>
 
-          {/* Decorative Elements */}
-          <div className="absolute -top-6 -right-6 w-12 h-12 bg-dark-spring-green/10 rounded-full blur-xl" />
-          <div className="absolute -bottom-6 -left-6 w-12 h-12 bg-light-blue/10 rounded-full blur-xl" />
-        </Card>
-      </motion.div>
+                    <Button
+                      variant="ghost"
+                      className="w-full text-ghost-white/80 hover:text-dark-spring-green hover:bg-dark-spring-green/10"
+                      type="button"
+                      onClick={() => setIsSignUp(!isSignUp)}
+                    >
+                      {isSignUp ? "Already have an account?" : "Need an account?"}
+                    </Button>
+                  </CardFooter>
+                </form>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
