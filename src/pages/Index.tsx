@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { 
   Stethoscope, 
   Shield, 
@@ -11,10 +12,12 @@ import {
   MessageSquare 
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import AuthOverlay from "@/components/auth/AuthOverlay";
 
 export default function Index() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [showAuth, setShowAuth] = useState(false);
 
   // Redirect to dashboard if user is already authenticated
   if (user) {
@@ -24,6 +27,8 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      <AuthOverlay isOpen={showAuth} onClose={() => setShowAuth(false)} />
+      
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16">
         <motion.div
@@ -41,7 +46,7 @@ export default function Index() {
           </p>
           <Button
             size="lg"
-            onClick={() => navigate("/auth")}
+            onClick={() => setShowAuth(true)}
             className="group"
           >
             Get Started
@@ -122,7 +127,7 @@ export default function Index() {
             </p>
             <Button
               size="lg"
-              onClick={() => navigate("/auth")}
+              onClick={() => setShowAuth(true)}
               className="group bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
             >
               Start Your Free Consultation

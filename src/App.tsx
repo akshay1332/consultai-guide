@@ -9,7 +9,6 @@ import { AnimatePresence } from "framer-motion";
 import { AuthProvider } from "@/lib/auth";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import AuthPage from "./pages/auth/AuthPage";
 import DashboardPage from "./pages/dashboard/DashboardPage";
 
 const queryClient = new QueryClient({
@@ -31,7 +30,6 @@ function App() {
             <AnimatePresence mode="wait">
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<AuthPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
