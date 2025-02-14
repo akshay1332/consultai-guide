@@ -1,0 +1,169 @@
+Patient Demographics & Basic Information
+•	Personal Identification:
+o	Full Name, Date of Birth, Gender
+o	Height, Weight, and Body Mass Index (BMI) calculation
+o	Ethnicity (if relevant for certain conditions or drug metabolism)
+o	Contact details (phone, email, emergency contact)
+•	Lifestyle & Socioeconomic Details:
+o	Occupation, typical work hours, and work environment (e.g., exposure to chemicals, repetitive stress)
+o	Level of physical activity (e.g., sedentary, moderate, high intensity)
+o	Diet and nutritional habits (e.g., vegetarian, high-protein, calorie intake)
+o	Sleep habits (duration, quality, disturbances)
+o	Substance use: tobacco, alcohol (frequency, quantity), recreational drugs
+________________________________________
+2. Chief Complaint & Presenting Symptoms
+•	Primary Concern:
+o	“What is your main symptom or problem today?”
+o	Please describe the symptom in your own words.
+•	Onset & Duration:
+o	When did you first notice this symptom? (exact time/date if possible)
+o	Has it been continuous or intermittent? Describe any pattern (e.g., worse in the morning, after meals).
+•	Intensity & Impact:
+o	On a scale from 1-10, how would you rate the intensity of your symptom?
+o	How does this symptom affect your daily life or work? (e.g., inability to perform routine activities)
+•	Pain Specifics (if applicable):
+o	Location: Where is the pain located? Does it radiate (e.g., from the chest to the arm, from the lower back to the leg)?
+o	Quality: Is the pain sharp, dull, burning, stabbing, throbbing, or cramping?
+o	Duration & Frequency: Is the pain constant or does it occur in episodes? How long does each episode last?
+o	Aggravating/Relieving Factors: What activities or medications alleviate or worsen the pain? (e.g., movement, heat, rest, specific drugs)
+o	Associated sensations: Tingling, numbness, weakness, or swelling?
+________________________________________
+3. History of Present Illness (HPI) – Detailed Exploration
+•	Symptom Characterization:
+o	Describe the exact nature of your symptoms (e.g., cough type: dry vs. productive; abdominal pain: colicky, constant, etc.).
+o	Any changes over time: Has the symptom intensified or changed in quality since it first appeared?
+•	Temporal Factors:
+o	Are there specific triggers or times of day when the symptom worsens (e.g., after meals, at night)?
+o	Duration: For how long have you been experiencing these symptoms? Are they lasting minutes, hours, or days?
+•	Associated Symptoms:
+o	Ask about systemic symptoms: fever, chills, night sweats, fatigue, weight loss.
+o	Organ-specific follow-ups:
+	Cardiovascular: Do you have chest pain, palpitations, shortness of breath, or edema?
+	Respiratory: Any cough, sputum production, wheezing, or difficulty breathing?
+	Gastrointestinal: Nausea, vomiting, diarrhea, constipation, bloating, heartburn, appetite loss.
+	Neurological: Headaches, dizziness, visual disturbances, numbness, weakness.
+	Musculoskeletal: Joint stiffness, swelling, muscle weakness, or joint pain.
+•	Prior Episodes:
+o	Have you experienced these symptoms before? If so, how were they managed or treated?
+o	Any previous diagnostic tests (X-rays, blood tests, MRIs) and their outcomes.
+________________________________________
+4. Past Medical History (PMH)
+•	Chronic Diseases:
+o	List any diagnosed conditions (e.g., diabetes, hypertension, asthma, chronic kidney disease, autoimmune disorders).
+o	Duration of the condition and current management plan.
+•	Previous Hospitalizations or Surgeries:
+o	Details of any surgeries or hospital stays, especially those related to the current complaint.
+o	Any history of recurrent infections or complications.
+•	Vaccination & Preventive Care:
+o	Record immunization status (e.g., flu, pneumococcal, COVID-19, tetanus).
+o	Last physical exam or routine check-up.
+________________________________________
+5. Medication History
+•	Current Medications:
+o	List all current prescriptions, over-the-counter drugs, supplements, and herbal remedies.
+o	Dosage, frequency, and duration of use.
+o	Any recent changes in medication regimens.
+•	Medication Efficacy & Side Effects:
+o	Ask if the patient has noticed any side effects from their current medications.
+o	Inquire about any medication that has provided relief or exacerbated their symptoms.
+•	Past Drug Reactions:
+o	Document any adverse drug reactions or known contraindications.
+________________________________________
+6. Allergies & Adverse Reactions
+•	Allergen Identification:
+o	Specific allergens (medications, foods, environmental factors, insect stings).
+o	Description of reactions (e.g., rash, anaphylaxis, gastrointestinal distress).
+o	Severity and frequency of allergic reactions.
+________________________________________
+7. Family History
+•	Genetic & Hereditary Conditions:
+o	Document any family history of chronic diseases (e.g., heart disease, diabetes, cancers).
+o	Specific details on conditions that might affect treatment choices (e.g., bleeding disorders, autoimmune diseases).
+•	Pattern & Age of Onset:
+o	At what age did family members develop these conditions?
+o	Any known genetic predispositions or relevant genetic test results.
+________________________________________
+8. Social History & Lifestyle Factors
+•	Behavioral & Environmental Factors:
+o	Smoking history (pack-years, current smoking status).
+o	Alcohol consumption (frequency, quantity, type).
+o	Recreational drug use.
+•	Diet & Nutrition:
+o	Typical daily diet, any special diets or restrictions.
+o	Recent changes in appetite or weight.
+•	Physical Activity:
+o	Level and type of exercise.
+o	Any recent changes in activity levels due to symptoms.
+•	Stress & Mental Health:
+o	Levels of stress or anxiety, and any recent significant emotional events.
+o	Sleep quality and disturbances (insomnia, nightmares, restless sleep).
+________________________________________
+9. Review of Systems (ROS) – Detailed Checklist
+•	General: Fever, fatigue, weight changes, chills, sweating
+•	Cardiovascular: Chest pain, palpitations, orthopnea, edema, syncope
+•	Respiratory: Cough (dry/productive), wheezing, shortness of breath, hemoptysis
+•	Gastrointestinal: Nausea, vomiting, diarrhea, constipation, abdominal pain, indigestion, jaundice
+•	Neurological: Headaches, dizziness, seizures, loss of consciousness, weakness, paresthesia
+•	Musculoskeletal: Joint pain, muscle aches, stiffness, limited range of motion
+•	Endocrine: Polyuria, polydipsia, heat or cold intolerance, menstrual irregularities
+•	Dermatological: Rashes, lesions, changes in skin color or texture, itching
+•	Psychiatric: Depression, anxiety, mood swings, hallucinations, cognitive changes
+________________________________________
+10. Advanced/Targeted Questions for Precise Diagnosis
+•	Pain and Discomfort Specifics:
+o	Can you pinpoint the exact location of the pain using a body diagram? Does it radiate to any other area?
+o	Have you tried any pain relief measures? What was the effect?
+o	Is the pain influenced by certain movements or positions?
+•	Functional Assessment:
+o	How are these symptoms affecting your work, mobility, and personal relationships?
+o	Are there any specific tasks you are unable to perform because of your symptoms?
+•	Detailed Respiratory Inquiry (if applicable):
+o	Do you experience shortness of breath during rest or only during exertion?
+o	Have you noticed any wheezing or changes in your breathing patterns?
+•	Gastrointestinal Specifics:
+o	Describe any changes in bowel habits, consistency of stools, or presence of blood.
+o	Have you experienced any acid reflux, heartburn, or indigestion?
+o	Any recent changes in appetite or unintentional weight loss?
+•	Neurological & Cognitive Evaluation:
+o	Are there any episodes of confusion, memory loss, or difficulty concentrating?
+o	Do you experience any vision changes or balance issues?
+•	Cardiovascular Focus (if chest pain or palpitations are reported):
+o	Does the pain change with physical exertion or stress?
+o	Have you ever experienced shortness of breath, dizziness, or fainting spells along with the pain?
+•	Medication & Treatment Sensitivities:
+o	Are you currently on any medications for similar symptoms? How effective have they been?
+o	Do you have any previous records of laboratory tests or imaging that might help clarify your condition?
+•	Lifestyle Impact & Future Goals:
+o	What are your goals regarding treatment? (E.g., rapid pain relief, long-term management of a chronic condition, or lifestyle modification)
+o	Are you willing to consider non-pharmacological treatments (e.g., physical therapy, dietary changes) alongside medications?
+________________________________________
+11. Emergency & Red Flag Inquiry
+•	Critical Warning Signs:
+o	Have you experienced severe chest pain, sudden shortness of breath, loss of consciousness, or sudden weakness?
+o	Are there any signs of an allergic reaction (e.g., difficulty breathing, swelling of the face, lips, or tongue)?
+o	Do you have any symptoms that are rapidly worsening or causing significant distress?
+•	Immediate Action Questions:
+o	Are you aware of when to seek emergency medical care if your symptoms deteriorate?
+o	Have you been advised by a healthcare professional previously on what actions to take in an emergency?
+________________________________________
+12. Final Summary & Confirmation
+•	Review & Confirm:
+o	Summarize all the information provided and ask the patient if there is anything else they would like to add.
+o	Confirm the accuracy of the collected data and ask if they have any concerns or questions about the questions asked.
+•	Patient Expectations:
+o	What outcome are you hoping to achieve from today’s consultation?
+o	Are there any specific treatments or medications you have previously found effective?
+________________________________________
+Usage & Integration for Treatment Recommendations
+•	Data Synthesis:
+The Virtual Doctor will use the collected data to:
+o	Evaluate potential diagnoses using advanced AI algorithms (Gemini API).
+o	Cross-reference patient data with medical guidelines and potential contraindications.
+o	Generate a tailored treatment plan that includes:
+	Medication recommendations (dosing, duration, possible side effects)
+	Lifestyle modifications (diet, exercise, stress management)
+	When to follow up with a specialist or seek emergency care
+	Local healthcare options (via Google Maps/Places API) for further consultation, pharmacy pickup, or hospital visits if needed.
+•	Feedback Loop:
+o	The system can prompt the patient for feedback after initial treatment to monitor efficacy and adjust recommendations accordingly.
+
