@@ -1,6 +1,5 @@
-
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MessageSquare, FileText, ClipboardCheck } from "lucide-react";
 
@@ -8,16 +7,27 @@ export default function DashboardHome() {
   const { data: stats } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: async () => {
-      const [sessions, reports, assessments] = await Promise.all([
-        supabase.from("chat_sessions").select("*", { count: "exact" }),
-        supabase.from("reports").select("*", { count: "exact" }),
-        supabase.from("assessments").select("*", { count: "exact" }),
-      ]);
+      // Get completed sessions with reports
+      const { count: completedSessionsCount } = await supabase
+        .from("chat_sessions")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "completed")
+        .not("reports", "is", null);
+
+      // Get total reports count
+      const { count: reportsCount } = await supabase
+        .from("reports")
+        .select("*", { count: "exact", head: true });
+
+      // Get total assessments count
+      const { count: assessmentsCount } = await supabase
+        .from("assessments")
+        .select("*", { count: "exact", head: true });
       
       return {
-        sessions: sessions.count || 0,
-        reports: reports.count || 0,
-        assessments: assessments.count || 0,
+        sessions: completedSessionsCount || 0,
+        reports: reportsCount || 0,
+        assessments: assessmentsCount || 0,
       };
     },
   });
@@ -29,7 +39,7 @@ export default function DashboardHome() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Sessions</CardTitle>
+            <CardTitle className="text-sm font-medium">Completed Sessions</CardTitle>
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
