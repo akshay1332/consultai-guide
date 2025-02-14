@@ -9,6 +9,97 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      assessments: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          results: Json | null
+          status: string | null
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          results?: Json | null
+          status?: string | null
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          results?: Json | null
+          status?: string | null
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      basic_information: {
+        Row: {
+          allergies: string[] | null
+          blood_type: string | null
+          date_of_birth: string | null
+          emergency_contact: Json | null
+          gender: string | null
+          height: number | null
+          id: string
+          medical_conditions: string[] | null
+          updated_at: string | null
+          user_id: string | null
+          weight: number | null
+        }
+        Insert: {
+          allergies?: string[] | null
+          blood_type?: string | null
+          date_of_birth?: string | null
+          emergency_contact?: Json | null
+          gender?: string | null
+          height?: number | null
+          id?: string
+          medical_conditions?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+          weight?: number | null
+        }
+        Update: {
+          allergies?: string[] | null
+          blood_type?: string | null
+          date_of_birth?: string | null
+          emergency_contact?: Json | null
+          gender?: string | null
+          height?: number | null
+          id?: string
+          medical_conditions?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "basic_information_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_sessions: {
         Row: {
           created_at: string | null
