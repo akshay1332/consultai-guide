@@ -8,6 +8,7 @@ import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import CallToAction from "@/components/landing/CallToAction";
 import Footer from "@/components/landing/Footer";
 import PricingSection from "@/components/landing/PricingSection";
+import AboutUsSection from "@/components/landing/AboutUsSection";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ export default function Index() {
       <AuthOverlay isOpen={showAuth} onClose={() => setShowAuth(false)} />
       
       <HeroSection onGetStarted={handleGetStarted} />
+      <AboutUsSection />
       <FeaturesSection />
       <TestimonialsSection />
       <PricingSection />
