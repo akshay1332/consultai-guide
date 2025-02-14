@@ -9,6 +9,8 @@ import CallToAction from "@/components/landing/CallToAction";
 import Footer from "@/components/landing/Footer";
 import PricingSection from "@/components/landing/PricingSection";
 import AboutUsSection from "@/components/landing/AboutUsSection";
+import ExpertsSection from "@/components/landing/ExpertsSection";
+import MarqueeSection from "@/components/landing/MarqueeSection";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -30,7 +32,9 @@ export default function Index() {
       <AuthOverlay isOpen={showAuth} onClose={() => setShowAuth(false)} />
       
       <HeroSection onGetStarted={handleGetStarted} />
+      <MarqueeSection />
       <AboutUsSection />
+      <ExpertsSection />
       <FeaturesSection />
       <TestimonialsSection />
       <PricingSection />
