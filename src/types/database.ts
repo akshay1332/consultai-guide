@@ -1,3 +1,4 @@
+
 export interface Profile {
   id: string;
   email: string;
@@ -15,8 +16,8 @@ export interface BasicInformation {
   height: number;
   weight: number;
   blood_type: string;
-  allergies: string;
-  medical_conditions: string;
+  allergies: string[];
+  medical_conditions: string[];
   emergency_contact: {
     name: string;
     phone: string;
@@ -39,8 +40,6 @@ export interface Assessment {
 export interface ChatSession {
   id: string;
   user_id: string;
-  latitude: number;
-  longitude: number;
   status: string;
   created_at: string;
   finished_at: string | null;
@@ -60,4 +59,4 @@ export interface Report {
   session_id: string;
   report_data: any;
   generated_at: string;
-} 
+}
