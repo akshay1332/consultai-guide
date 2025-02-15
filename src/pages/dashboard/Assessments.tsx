@@ -3,7 +3,7 @@ import { useRealtimeSubscription } from "@/hooks/useRealtimeData";
 import { Assessment } from "@/types/database";
 import { useAuth } from "@/lib/auth";
 import { format } from "date-fns";
-import { Loader2, Brain, Heart, Activity, Smile, AlertTriangle, X } from "lucide-react";
+import { Loader2, Brain, Heart, Activity, Smile, AlertTriangle, X, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,42 @@ import { Stepper } from "@/components/ui/stepper";
 import { cn } from "@/lib/utils";
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { supabase } from "@/lib/supabase";
+import { motion, AnimatePresence } from "framer-motion";
+
+const aiAssessmentTypes = [
+  {
+    id: "general-health",
+    title: "General Health Assessment",
+    description: "Comprehensive AI-powered evaluation of your overall health status",
+    icon: Activity,
+    color: "text-emerald-500",
+    bgGradient: "from-emerald-100 to-emerald-200"
+  },
+  {
+    id: "mental-wellness",
+    title: "Mental Wellness Check",
+    description: "AI-driven assessment of your mental health and emotional well-being",
+    icon: Brain,
+    color: "text-blue-500",
+    bgGradient: "from-blue-100 to-blue-200"
+  },
+  {
+    id: "physical-fitness",
+    title: "Physical Fitness Analysis",
+    description: "Advanced AI evaluation of your physical fitness and activity levels",
+    icon: Heart,
+    color: "text-red-500",
+    bgGradient: "from-red-100 to-red-200"
+  },
+  {
+    id: "nutrition",
+    title: "Nutrition Assessment",
+    description: "AI analysis of your dietary habits and nutritional health",
+    icon: AlertTriangle,
+    color: "text-orange-500",
+    bgGradient: "from-orange-100 to-orange-200"
+  }
+];
 
 const assessmentTypes = [
   {
@@ -573,6 +609,8 @@ type AssessmentWithResults = typeof assessmentTypes[0] & {
   answers?: Record<string, string>;
 };
 
+const MotionCard = motion(Card);
+
 export default function Assessments() {
   const { user } = useAuth();
   const { data: assessments, loading, error } = useRealtimeSubscription<Assessment>(
@@ -587,6 +625,8 @@ export default function Assessments() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showAssessmentDialog, setShowAssessmentDialog] = useState(false);
+  const [selectedAiAssessment, setSelectedAiAssessment] = useState<string | null>(null);
+  const [isStartingAiAssessment, setIsStartingAiAssessment] = useState(false);
 
   const handleStartAssessment = (assessment: typeof assessmentTypes[0]) => {
     setSelectedAssessment(assessment);
@@ -877,6 +917,14 @@ export default function Assessments() {
     return lines;
   };
 
+  const handleStartAiAssessment = async (assessmentId: string) => {
+    setIsStartingAiAssessment(true);
+    setSelectedAiAssessment(assessmentId);
+    // TODO: Implement AI assessment generation logic
+    // This would connect to your Gemini API to generate questions
+    setIsStartingAiAssessment(false);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -894,64 +942,122 @@ export default function Assessments() {
   }
 
   return (
-    <div className="space-y-4 p-8">
-      <h2 className="text-3xl font-bold tracking-tight">Health Assessments</h2>
+    <div className="space-y-6 p-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col gap-4"
+      >
+        <h2 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-[#04724D] to-[#0891B2] bg-clip-text text-transparent">
+          Health Assessments
+        </h2>
+        <p className="text-gray-500">Take comprehensive health assessments powered by AI</p>
+      </motion.div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="assessment" disabled={!selectedAssessment}>
-            Active Assessment
+        <TabsList className="grid w-full grid-cols-2 mb-8">
+          <TabsTrigger value="overview" className="text-lg py-3">Available Assessments</TabsTrigger>
+          <TabsTrigger value="ai-assessment" className="text-lg py-3">
+            AI Assessment
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {assessmentTypes.map((assessment) => (
-              <Card key={assessment.id} className="relative overflow-hidden">
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {assessmentTypes.map((assessment, index) => (
+              <MotionCard
+                key={assessment.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="relative overflow-hidden group hover:shadow-lg transition-all duration-300"
+                whileHover={{ scale: 1.02, y: -5 }}
+              >
+                <div
+                  className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-300"
+                  style={{ background: assessment.color }}
+                />
                 <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <assessment.icon className={`h-5 w-5 ${assessment.color}`} />
-                    <CardTitle>{assessment.title}</CardTitle>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        "p-2 rounded-xl",
+                        "bg-gradient-to-br shadow-lg",
+                        assessment.id === "heart" && "from-red-100 to-red-200",
+                        assessment.id === "brain" && "from-blue-100 to-blue-200",
+                        assessment.id === "mental" && "from-green-100 to-green-200",
+                        assessment.id === "depression" && "from-yellow-100 to-yellow-200",
+                        assessment.id === "vitals" && "from-purple-100 to-purple-200"
+                      )}
+                    >
+                      <assessment.icon className={cn("h-6 w-6", assessment.color)} />
+                    </div>
+                    <CardTitle className="text-xl">{assessment.title}</CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">{assessment.description}</p>
-                  <Button 
-                    onClick={() => handleStartAssessment(assessment)}
-                    className="w-full"
-                  >
-                    Start Assessment
-                  </Button>
+                <CardContent className="space-y-4">
+                  <p className="text-muted-foreground">{assessment.description}</p>
+                  <div className="flex items-center justify-between">
+                    <Badge variant="outline" className="text-xs">
+                      {assessment.questions.length} Questions
+                    </Badge>
+                    <Button
+                      onClick={() => handleStartAssessment(assessment)}
+                      className="group relative overflow-hidden bg-gradient-to-r from-[#04724D] to-[#0891B2] text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
+                      <span className="relative z-10">Start Assessment</span>
+                      <motion.div
+                        className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                        whileHover={{ scale: 1.5 }}
+                      />
+                      <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+                    </Button>
+                  </div>
                 </CardContent>
-              </Card>
+              </MotionCard>
             ))}
           </div>
 
           {assessments && assessments.length > 0 && (
-            <Card className="mt-8">
+            <MotionCard
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-8 overflow-hidden"
+            >
               <CardHeader>
-                <CardTitle>Recent Assessments</CardTitle>
+                <CardTitle className="text-2xl">Recent Assessments</CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-4">
-                  {assessments.map((assessment) => (
-                    <li 
-                      key={assessment.id} 
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent cursor-pointer"
+                <motion.ul className="space-y-4">
+                  {assessments.map((assessment, index) => (
+                    <motion.li
+                      key={assessment.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="flex items-center justify-between p-4 border rounded-xl hover:bg-accent/5 cursor-pointer transition-all duration-200"
+                      whileHover={{ scale: 1.01, x: 4 }}
                     >
-                      <div>
-                        <p className="font-medium">{assessment.title}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Completed {format(new Date(assessment.completed_at || ''), 'PPp')}
-                        </p>
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200">
+                          <Activity className="h-5 w-5 text-gray-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{assessment.title}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Completed {format(new Date(assessment.completed_at || ''), 'PPp')}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant={assessment.status === 'completed' ? 'default' : 'secondary'}>
-                          {assessment.status === 'completed' ? 'Completed' : 'In Progress'}
+                      <div className="flex items-center gap-3">
+                        <Badge
+                          variant={assessment.status === 'completed' ? 'default' : 'secondary'}
+                          className="capitalize"
+                        >
+                          {assessment.status}
                         </Badge>
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="sm"
                           onClick={() => {
                             const results = assessment.results as any;
@@ -968,16 +1074,124 @@ export default function Assessments() {
                               setAssessmentResult(results);
                             }
                           }}
+                          className="hover:bg-accent/10"
                         >
                           View Details
                         </Button>
                       </div>
-                    </li>
+                    </motion.li>
                   ))}
-                </ul>
+                </motion.ul>
               </CardContent>
-            </Card>
+            </MotionCard>
           )}
+        </TabsContent>
+
+        <TabsContent value="ai-assessment" className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            {aiAssessmentTypes.map((assessment, index) => (
+              <MotionCard
+                key={assessment.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="relative overflow-hidden group hover:shadow-lg transition-all duration-300"
+                whileHover={{ scale: 1.02, y: -5 }}
+              >
+                <div
+                  className={cn(
+                    "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-300",
+                    assessment.bgGradient
+                  )}
+                />
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        "p-2 rounded-xl",
+                        "bg-gradient-to-br shadow-lg",
+                        assessment.bgGradient
+                      )}
+                    >
+                      <assessment.icon className={cn("h-6 w-6", assessment.color)} />
+                    </div>
+                    <CardTitle className="text-xl">{assessment.title}</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-muted-foreground">{assessment.description}</p>
+                  <div className="flex items-center justify-between">
+                    <Badge variant="outline" className="text-xs">
+                      AI-Powered
+                    </Badge>
+                    <Button
+                      onClick={() => handleStartAiAssessment(assessment.id)}
+                      disabled={isStartingAiAssessment}
+                      className="group relative overflow-hidden bg-gradient-to-r from-[#04724D] to-[#0891B2] text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
+                      {isStartingAiAssessment && selectedAiAssessment === assessment.id ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Preparing...
+                        </>
+                      ) : (
+                        <>
+                          <span className="relative z-10">Start AI Assessment</span>
+                          <motion.div
+                            className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                            whileHover={{ scale: 1.5 }}
+                          />
+                          <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </MotionCard>
+            ))}
+          </div>
+
+          {/* AI Assessment Information */}
+          <MotionCard
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-8 bg-gradient-to-br from-[#04724D]/5 to-[#0891B2]/5"
+          >
+            <CardHeader>
+              <CardTitle className="text-2xl">About AI Assessments</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2 text-[#04724D]">
+                    <Brain className="h-5 w-5" />
+                    <h3 className="font-medium">Intelligent Analysis</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Our AI system analyzes your responses in real-time to provide personalized insights
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2 text-[#04724D]">
+                    <Activity className="h-5 w-5" />
+                    <h3 className="font-medium">Dynamic Questions</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Questions adapt based on your responses for more accurate assessment
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2 text-[#04724D]">
+                    <AlertTriangle className="h-5 w-5" />
+                    <h3 className="font-medium">Comprehensive Report</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Receive detailed insights and recommendations after completion
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </MotionCard>
         </TabsContent>
       </Tabs>
 
@@ -986,10 +1200,22 @@ export default function Assessments() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <div className="flex items-center justify-between">
-              <DialogTitle className="flex items-center gap-2">
+              <DialogTitle className="flex items-center gap-3 text-2xl">
                 {selectedAssessment && (
                   <>
-                    <selectedAssessment.icon className={`h-5 w-5 ${selectedAssessment.color}`} />
+                    <div
+                      className={cn(
+                        "p-2 rounded-xl",
+                        "bg-gradient-to-br shadow-lg",
+                        selectedAssessment.id === "heart" && "from-red-100 to-red-200",
+                        selectedAssessment.id === "brain" && "from-blue-100 to-blue-200",
+                        selectedAssessment.id === "mental" && "from-green-100 to-green-200",
+                        selectedAssessment.id === "depression" && "from-yellow-100 to-yellow-200",
+                        selectedAssessment.id === "vitals" && "from-purple-100 to-purple-200"
+                      )}
+                    >
+                      <selectedAssessment.icon className={cn("h-6 w-6", selectedAssessment.color)} />
+                    </div>
                     {selectedAssessment.title}
                   </>
                 )}
@@ -998,7 +1224,7 @@ export default function Assessments() {
                 variant="ghost"
                 size="icon"
                 onClick={handleCancelAssessment}
-                className="h-6 w-6 p-0"
+                className="h-6 w-6 p-0 hover:bg-accent/10"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -1006,7 +1232,11 @@ export default function Assessments() {
           </DialogHeader>
 
           {selectedAssessment && (
-            <div className="mt-4 space-y-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 space-y-8"
+            >
               <div className="flex gap-8">
                 <div className="w-1/4">
                   <Stepper
@@ -1019,49 +1249,57 @@ export default function Assessments() {
                 </div>
 
                 <div className="flex-1 space-y-6">
-                  <Progress 
-                    value={(currentStep + 1) / selectedAssessment.questions.length * 100} 
-                    className="w-full"
+                  <Progress
+                    value={(currentStep + 1) / selectedAssessment.questions.length * 100}
+                    className="h-2 w-full bg-accent/20"
                   />
 
-                  <div className="space-y-4">
-                    <h3 className="font-medium text-lg">
+                  <motion.div
+                    key={currentStep}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-6"
+                  >
+                    <h3 className="text-xl font-medium">
                       {selectedAssessment.questions[currentStep].question}
                     </h3>
-                    
+
                     <RadioGroup
                       value={answers[selectedAssessment.questions[currentStep].id] || ''}
-                      onValueChange={(value) => 
+                      onValueChange={(value) =>
                         handleAnswer(selectedAssessment.questions[currentStep].id, value)
                       }
                       className="space-y-3"
                     >
                       {selectedAssessment.questions[currentStep].options.map((option) => (
-                        <div key={option} className="flex items-center space-x-3 rounded-lg border p-4 hover:bg-accent">
-                          <RadioGroupItem 
-                            value={option} 
-                            id={option}
-                          />
+                        <motion.div
+                          key={option}
+                          whileHover={{ scale: 1.01, x: 4 }}
+                          className="flex items-center space-x-3 rounded-xl border p-4 hover:bg-accent/5 cursor-pointer transition-all duration-200"
+                        >
+                          <RadioGroupItem value={option} id={option} />
                           <Label htmlFor={option} className="flex-1 cursor-pointer">{option}</Label>
-                        </div>
+                        </motion.div>
                       ))}
                     </RadioGroup>
-                  </div>
+                  </motion.div>
 
                   <div className="flex justify-between pt-6">
                     <Button
                       variant="outline"
                       onClick={handlePrevious}
                       disabled={currentStep === 0}
+                      className="hover:bg-accent/10"
                     >
                       Previous
                     </Button>
-                    
+
                     {currentStep === selectedAssessment.questions.length - 1 ? (
                       <Button
                         onClick={handleSubmit}
                         disabled={isSubmitting}
-                        className="bg-primary"
+                        className="bg-gradient-to-r from-[#04724D] to-[#0891B2] text-white"
                       >
                         {isSubmitting ? (
                           <>
@@ -1076,7 +1314,7 @@ export default function Assessments() {
                       <Button
                         onClick={handleNext}
                         disabled={!answers[selectedAssessment.questions[currentStep].id]}
-                        className="bg-primary"
+                        className="bg-gradient-to-r from-[#04724D] to-[#0891B2] text-white"
                       >
                         Next
                       </Button>
@@ -1084,7 +1322,7 @@ export default function Assessments() {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
         </DialogContent>
       </Dialog>
@@ -1113,7 +1351,19 @@ export default function Assessments() {
               <DialogTitle className="flex items-center gap-2">
                 {selectedAssessment && (
                   <>
-                    <selectedAssessment.icon className={`h-5 w-5 ${selectedAssessment.color}`} />
+                    <div
+                      className={cn(
+                        "p-2 rounded-xl",
+                        "bg-gradient-to-br shadow-lg",
+                        selectedAssessment.id === "heart" && "from-red-100 to-red-200",
+                        selectedAssessment.id === "brain" && "from-blue-100 to-blue-200",
+                        selectedAssessment.id === "mental" && "from-green-100 to-green-200",
+                        selectedAssessment.id === "depression" && "from-yellow-100 to-yellow-200",
+                        selectedAssessment.id === "vitals" && "from-purple-100 to-purple-200"
+                      )}
+                    >
+                      <selectedAssessment.icon className={cn("h-6 w-6", selectedAssessment.color)} />
+                    </div>
                     <span>{selectedAssessment.title} Results</span>
                   </>
                 )}

@@ -3,12 +3,15 @@ import { useRealtimeSubscription } from "@/hooks/useRealtimeData";
 import { Assessment } from "@/types/database";
 import { useAuth } from "@/lib/auth";
 import { format } from "date-fns";
-import { Loader2, Brain, Heart, Activity, Smile, AlertTriangle } from "lucide-react";
+import { Loader2, Brain, Heart, Activity, Smile, AlertTriangle, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
+
+const MotionCard = motion(Card);
 
 const assessmentIcons = {
   heart: Heart,
@@ -24,6 +27,14 @@ const riskLevelColors = {
   high: "bg-red-500"
 };
 
+const iconBackgrounds = {
+  heart: "from-red-100 to-red-200",
+  brain: "from-blue-100 to-blue-200",
+  mental: "from-green-100 to-green-200",
+  depression: "from-yellow-100 to-yellow-200",
+  vitals: "from-purple-100 to-purple-200"
+};
+
 export function AssessmentHistory() {
   const { user } = useAuth();
   const { data: assessments, loading, error } = useRealtimeSubscription<Assessment>(
@@ -35,7 +46,7 @@ export function AssessmentHistory() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#04724D]" />
       </div>
     );
   }
@@ -54,104 +65,171 @@ export function AssessmentHistory() {
 
   return (
     <>
-      <div className="space-y-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-6"
+      >
         {/* Summary Cards */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card>
+        <div className="grid gap-6 md:grid-cols-3">
+          <MotionCard
+            whileHover={{ scale: 1.02, y: -5 }}
+            className="group hover:shadow-lg transition-all duration-300"
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Assessments</CardTitle>
+              <Activity className="h-4 w-4 text-muted-foreground group-hover:text-[#04724D] transition-colors" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{totalAssessments}</div>
+              <div className="text-2xl font-bold bg-gradient-to-r from-[#04724D] to-[#0891B2] bg-clip-text text-transparent">
+                {totalAssessments}
+              </div>
             </CardContent>
-          </Card>
-          <Card>
+          </MotionCard>
+
+          <MotionCard
+            whileHover={{ scale: 1.02, y: -5 }}
+            className="group hover:shadow-lg transition-all duration-300"
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Completed</CardTitle>
+              <Activity className="h-4 w-4 text-muted-foreground group-hover:text-[#04724D] transition-colors" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{completedAssessments}</div>
+              <div className="text-2xl font-bold bg-gradient-to-r from-[#04724D] to-[#0891B2] bg-clip-text text-transparent">
+                {completedAssessments}
+              </div>
             </CardContent>
-          </Card>
-          <Card>
+          </MotionCard>
+
+          <MotionCard
+            whileHover={{ scale: 1.02, y: -5 }}
+            className="group hover:shadow-lg transition-all duration-300"
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Latest Assessment</CardTitle>
+              <Activity className="h-4 w-4 text-muted-foreground group-hover:text-[#04724D] transition-colors" />
             </CardHeader>
             <CardContent>
-              <div className="text-sm font-medium">
+              <div className="text-sm font-medium bg-gradient-to-r from-[#04724D] to-[#0891B2] bg-clip-text text-transparent">
                 {latestAssessment ? format(new Date(latestAssessment.created_at), 'PPP') : 'No assessments yet'}
               </div>
             </CardContent>
-          </Card>
+          </MotionCard>
         </div>
 
         {/* Assessment List */}
-        <Card>
+        <MotionCard
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="overflow-hidden"
+        >
           <CardHeader>
-            <CardTitle>Assessment History</CardTitle>
+            <CardTitle className="text-2xl">Assessment History</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {assessments?.map((assessment) => {
-                const results = assessment.results as any;
-                const Icon = assessmentIcons[results?.assessment_type as keyof typeof assessmentIcons] || Activity;
-                
-                return (
-                  <div
-                    key={assessment.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent cursor-pointer"
-                    onClick={() => setSelectedAssessment(assessment)}
-                  >
-                    <div className="flex items-center gap-4">
-                      <Icon className="h-5 w-5" />
-                      <div>
-                        <p className="font-medium">{assessment.title}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Completed {format(new Date(assessment.completed_at || ''), 'PPp')}
-                        </p>
+            <motion.div className="space-y-4">
+              <AnimatePresence>
+                {assessments?.map((assessment, index) => {
+                  const results = assessment.results as any;
+                  const Icon = assessmentIcons[results?.assessment_type as keyof typeof assessmentIcons] || Activity;
+                  const bgGradient = iconBackgrounds[results?.assessment_type as keyof typeof iconBackgrounds] || "from-gray-100 to-gray-200";
+                  
+                  return (
+                    <motion.div
+                      key={assessment.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ scale: 1.01, x: 4 }}
+                      className="flex items-center justify-between p-4 border rounded-xl hover:bg-accent/5 cursor-pointer transition-all duration-200"
+                      onClick={() => setSelectedAssessment(assessment)}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "p-2 rounded-xl bg-gradient-to-br shadow-lg",
+                          bgGradient
+                        )}>
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{assessment.title}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Completed {format(new Date(assessment.completed_at || ''), 'PPp')}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    {results?.risk_level && (
-                      <Badge className={cn(riskLevelColors[results.risk_level as keyof typeof riskLevelColors])}>
-                        {results.risk_level.toUpperCase()}
-                      </Badge>
-                    )}
-                  </div>
-                );
-              })}
+                      <div className="flex items-center gap-3">
+                        {results?.risk_level && (
+                          <Badge className={cn(
+                            riskLevelColors[results.risk_level as keyof typeof riskLevelColors],
+                            "capitalize"
+                          )}>
+                            {results.risk_level}
+                          </Badge>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="group hover:bg-accent/10"
+                        >
+                          View Details
+                          <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-300" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
               
               {assessments?.length === 0 && (
-                <div className="text-center text-muted-foreground py-8">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center text-muted-foreground py-8"
+                >
                   No assessments completed yet
-                </div>
+                </motion.div>
               )}
-            </div>
+            </motion.div>
           </CardContent>
-        </Card>
-      </div>
+        </MotionCard>
+      </motion.div>
 
       {/* Assessment Details Dialog */}
       <Dialog open={!!selectedAssessment} onOpenChange={() => setSelectedAssessment(null)}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              {selectedAssessment && (
-                <>
-                  {(() => {
-                    const results = selectedAssessment.results as any;
-                    const Icon = assessmentIcons[results?.assessment_type as keyof typeof assessmentIcons] || Activity;
-                    return <Icon className="h-5 w-5" />;
-                  })()}
-                  <span>{selectedAssessment.title}</span>
-                </>
-              )}
+            <DialogTitle className="flex items-center gap-3 text-2xl">
+              {selectedAssessment && (() => {
+                const results = selectedAssessment.results as any;
+                const Icon = assessmentIcons[results?.assessment_type as keyof typeof assessmentIcons] || Activity;
+                const bgGradient = iconBackgrounds[results?.assessment_type as keyof typeof iconBackgrounds] || "from-gray-100 to-gray-200";
+                
+                return (
+                  <>
+                    <div className={cn(
+                      "p-2 rounded-xl bg-gradient-to-br shadow-lg",
+                      bgGradient
+                    )}>
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <span>{selectedAssessment.title}</span>
+                  </>
+                );
+              })()}
             </DialogTitle>
           </DialogHeader>
 
           {selectedAssessment && (
-            <div className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
               <div className="grid gap-6 md:grid-cols-2">
-                <Card>
+                <MotionCard whileHover={{ scale: 1.02 }}>
                   <CardHeader>
                     <CardTitle>Assessment Summary</CardTitle>
                   </CardHeader>
@@ -174,9 +252,9 @@ export function AssessmentHistory() {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
+                </MotionCard>
 
-                <Card>
+                <MotionCard whileHover={{ scale: 1.02 }}>
                   <CardHeader>
                     <CardTitle>Assessment Details</CardTitle>
                   </CardHeader>
@@ -190,7 +268,7 @@ export function AssessmentHistory() {
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Type</span>
-                        <span className="font-medium">
+                        <span className="font-medium capitalize">
                           {(selectedAssessment.results as any).assessment_type}
                         </span>
                       </div>
@@ -202,28 +280,40 @@ export function AssessmentHistory() {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
+                </MotionCard>
               </div>
 
-              <Card>
+              <MotionCard whileHover={{ scale: 1.02 }}>
                 <CardHeader>
                   <CardTitle>Recommendations</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ul className="list-disc pl-4 space-y-2">
+                  <motion.ul className="list-disc pl-4 space-y-2">
                     {(selectedAssessment.results as any).recommendations?.map((rec: string, index: number) => (
-                      <li key={index} className="text-muted-foreground">{rec}</li>
+                      <motion.li
+                        key={index}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="text-muted-foreground"
+                      >
+                        {rec}
+                      </motion.li>
                     ))}
-                  </ul>
+                  </motion.ul>
                 </CardContent>
-              </Card>
+              </MotionCard>
 
               <div className="flex justify-end">
-                <Button variant="outline" onClick={() => setSelectedAssessment(null)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedAssessment(null)}
+                  className="hover:bg-accent/10"
+                >
                   Close
                 </Button>
               </div>
-            </div>
+            </motion.div>
           )}
         </DialogContent>
       </Dialog>
