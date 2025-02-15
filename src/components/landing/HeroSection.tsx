@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import { LayoutGroup, motion } from "framer-motion"
-import { TextRotate } from "@/components/ui/text-rotate"
+import TextRotate from "@/components/ui/text-rotate"
 import Floating, { FloatingElement } from "@/components/ui/parallax-floating"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Sparkles } from "lucide-react"
@@ -210,4 +210,4 @@ export default function HeroSection({ onGetStarted }: HeroSectionProps) {
       </div>
     </section>
   )
-} 
+}
