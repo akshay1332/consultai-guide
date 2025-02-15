@@ -53,74 +53,41 @@ export type Database = {
       basic_information: {
         Row: {
           allergies: string[] | null
-          blood_pressure: Json | null
           blood_type: string | null
           date_of_birth: string | null
-          dietary_preferences: string[] | null
           emergency_contact: Json | null
-          exercise_frequency: string | null
-          family_history: Json | null
           gender: string | null
           height: number | null
           id: string
-          insurance_info: Json | null
-          last_physical_exam: string | null
-          lifestyle_habits: Json | null
-          marital_status: string | null
           medical_conditions: string[] | null
-          occupation: string | null
-          preferred_language: string | null
           updated_at: string | null
           user_id: string | null
-          vaccination_history: Json | null
           weight: number | null
         }
         Insert: {
           allergies?: string[] | null
-          blood_pressure?: Json | null
           blood_type?: string | null
           date_of_birth?: string | null
-          dietary_preferences?: string[] | null
           emergency_contact?: Json | null
-          exercise_frequency?: string | null
-          family_history?: Json | null
           gender?: string | null
           height?: number | null
           id?: string
-          insurance_info?: Json | null
-          last_physical_exam?: string | null
-          lifestyle_habits?: Json | null
-          marital_status?: string | null
           medical_conditions?: string[] | null
-          occupation?: string | null
-          preferred_language?: string | null
           updated_at?: string | null
           user_id?: string | null
-          vaccination_history?: Json | null
           weight?: number | null
         }
         Update: {
           allergies?: string[] | null
-          blood_pressure?: Json | null
           blood_type?: string | null
           date_of_birth?: string | null
-          dietary_preferences?: string[] | null
           emergency_contact?: Json | null
-          exercise_frequency?: string | null
-          family_history?: Json | null
           gender?: string | null
           height?: number | null
           id?: string
-          insurance_info?: Json | null
-          last_physical_exam?: string | null
-          lifestyle_habits?: Json | null
-          marital_status?: string | null
           medical_conditions?: string[] | null
-          occupation?: string | null
-          preferred_language?: string | null
           updated_at?: string | null
           user_id?: string | null
-          vaccination_history?: Json | null
           weight?: number | null
         }
         Relationships: [
@@ -171,41 +138,6 @@ export type Database = {
           },
         ]
       }
-      diet_plans: {
-        Row: {
-          created_at: string
-          diet_data: Json
-          id: string
-          report_id: string | null
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          diet_data: Json
-          id?: string
-          report_id?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          diet_data?: Json
-          id?: string
-          report_id?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "diet_plans_report_id_fkey"
-            columns: ["report_id"]
-            isOneToOne: false
-            referencedRelation: "reports"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       messages: {
         Row: {
           id: string
@@ -243,7 +175,6 @@ export type Database = {
       }
       profiles: {
         Row: {
-          avatar_url: string | null
           created_at: string | null
           email: string | null
           full_name: string | null
@@ -252,7 +183,6 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          avatar_url?: string | null
           created_at?: string | null
           email?: string | null
           full_name?: string | null
@@ -261,7 +191,6 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          avatar_url?: string | null
           created_at?: string | null
           email?: string | null
           full_name?: string | null
@@ -273,24 +202,32 @@ export type Database = {
       }
       reports: {
         Row: {
-          generated_at: string
+          generated_at: string | null
           id: string
-          report_data: Json
-          session_id: string
+          report_data: Json | null
+          session_id: string | null
         }
         Insert: {
-          generated_at?: string
+          generated_at?: string | null
           id?: string
-          report_data: Json
-          session_id: string
+          report_data?: Json | null
+          session_id?: string | null
         }
         Update: {
-          generated_at?: string
+          generated_at?: string | null
           id?: string
-          report_data?: Json
-          session_id?: string
+          report_data?: Json | null
+          session_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "reports_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

@@ -1,4 +1,3 @@
-
 export interface Profile {
   id: string;
   email: string;
@@ -16,8 +15,8 @@ export interface BasicInformation {
   height: number;
   weight: number;
   blood_type: string;
-  allergies: string[];
-  medical_conditions: string[];
+  allergies: string;
+  medical_conditions: string;
   emergency_contact: {
     name: string;
     phone: string;
@@ -40,6 +39,8 @@ export interface Assessment {
 export interface ChatSession {
   id: string;
   user_id: string;
+  latitude: number;
+  longitude: number;
   status: string;
   created_at: string;
   finished_at: string | null;
@@ -57,54 +58,6 @@ export interface Message {
 export interface Report {
   id: string;
   session_id: string;
-  report_data: {
-    estimatedCondition: string;
-    symptomsAnalysis: string;
-    diagnosis: string;
-    treatment: string[];
-    medications: Array<{
-      name: string;
-      dosage: string;
-      duration: string;
-      instructions: string;
-    }>;
-    recommendations: string[];
-    precautions: string;
-    followUp: string;
-    dietPlan?: {
-      meals: Array<{
-        type: string;
-        suggestions: string[];
-        timing: string;
-        portions: string;
-        notes: string;
-      }>;
-      guidelines: string[];
-      restrictions: string[];
-      hydration: string;
-      supplements: Array<{
-        name: string;
-        dosage: string;
-        timing: string;
-      }>;
-      duration: string;
-      specialInstructions: string;
-    };
-  };
+  report_data: any;
   generated_at: string;
-}
-
-export interface StoredReport extends Report {}
-
-export interface QuestionnaireSection {
-  id: string;
-  title: string;
-  priority: number;
-  questions: Array<{
-    id: string;
-    question: string;
-    type: "select" | "multiselect";
-    options: string[];
-    required?: boolean;
-  }>;
-}
+} 
