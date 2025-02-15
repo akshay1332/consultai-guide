@@ -76,13 +76,28 @@ export default function DashboardPage() {
     enabled: !!session?.user?.id,
   });
 
-  // Calculate statistics
+  const { data: stats } = useQuery({
+    queryKey: ["dashboard-stats"],
+    queryFn: async () => {
+      const [sessionsRes, reportsRes, assessmentsRes] = await Promise.all([
+        supabase.from("chat_sessions").select("*", { count: "exact", head: true }),
+        supabase.from("reports").select("*", { count: "exact", head: true }),
+        supabase.from("assessments").select("*", { count: "exact", head: true }),
+      ]);
+      
+      return {
+        sessions: sessionsRes.count || 0,
+        reports: reportsRes.count || 0,
+        assessments: assessmentsRes.count || 0,
+      };
+    },
+  });
+
   const totalSessions = chatSessions?.length || 0;
   const completedSessions = chatSessions?.filter(s => s.status === 'completed').length || 0;
   const totalMessages = chatSessions?.reduce((acc, session) => acc + (session.messages?.count || 0), 0) || 0;
   const totalReports = chatSessions?.reduce((acc, session) => acc + (session.reports?.length || 0), 0) || 0;
 
-  // Prepare chart data
   const sessionsOverTime = chatSessions?.reduce((acc: any[], session) => {
     const date = format(new Date(session.created_at), 'MMM d');
     const existing = acc.find(item => item.date === date);
@@ -114,7 +129,6 @@ export default function DashboardPage() {
       animate="show"
       className="min-h-screen bg-gradient-to-b from-[#F4F4F9] to-[#B8DBD9]/20 p-8"
     >
-      {/* Header */}
       <div className="max-w-7xl mx-auto">
         <motion.div variants={item} className="flex justify-between items-center mb-8">
           <div>
@@ -127,7 +141,6 @@ export default function DashboardPage() {
           </Button>
         </motion.div>
 
-        {/* Stats Grid */}
         <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all">
             <CardContent className="p-6">
@@ -194,7 +207,6 @@ export default function DashboardPage() {
           </Card>
         </motion.div>
 
-        {/* Charts and Recent Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <motion.div variants={item} className="lg:col-span-2">
             <Card className="bg-white/80 backdrop-blur-sm">
@@ -269,7 +281,6 @@ export default function DashboardPage() {
           </motion.div>
         </div>
 
-        {/* Quick Actions */}
         <motion.div variants={item}>
           <Card className="bg-white/80 backdrop-blur-sm">
             <CardHeader>

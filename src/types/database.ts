@@ -57,6 +57,54 @@ export interface Message {
 export interface Report {
   id: string;
   session_id: string;
-  report_data: any;
+  report_data: {
+    estimatedCondition: string;
+    symptomsAnalysis: string;
+    diagnosis: string;
+    treatment: string[];
+    medications: Array<{
+      name: string;
+      dosage: string;
+      duration: string;
+      instructions: string;
+    }>;
+    recommendations: string[];
+    precautions: string;
+    followUp: string;
+    dietPlan?: {
+      meals: Array<{
+        type: string;
+        suggestions: string[];
+        timing: string;
+        portions: string;
+        notes: string;
+      }>;
+      guidelines: string[];
+      restrictions: string[];
+      hydration: string;
+      supplements: Array<{
+        name: string;
+        dosage: string;
+        timing: string;
+      }>;
+      duration: string;
+      specialInstructions: string;
+    };
+  };
   generated_at: string;
+}
+
+export interface StoredReport extends Report {}
+
+export interface QuestionnaireSection {
+  id: string;
+  title: string;
+  priority: number;
+  questions: Array<{
+    id: string;
+    question: string;
+    type: "select" | "multiselect";
+    options: string[];
+    required?: boolean;
+  }>;
 }

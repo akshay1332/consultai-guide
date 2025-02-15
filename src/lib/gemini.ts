@@ -105,6 +105,7 @@ interface MedicalReport {
     long_term_management: string[];
     lifestyle_modifications: string[];
   };
+  disclaimer: string;
 }
 
 const MEDICAL_DISCLAIMER = `
@@ -483,4 +484,4 @@ Format the response in a structured way.`;
     console.error('Error processing medical assessment:', error);
     throw new Error('Failed to process medical assessment');
   }
-} 
+}
