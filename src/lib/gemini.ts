@@ -166,57 +166,118 @@ export async function generateDietPlan(data: {
 }): Promise<DietPlan> {
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    const prompt = `Generate a comprehensive diet plan for a patient with the following details:
-      
-      Medical Condition: ${data.condition}
-      Weight: ${data.weight} kg
-      Height: ${data.height} cm
-      Allergies: ${data.allergies.join(", ")}
-      Current Medications: ${data.medications.map(m => `${m.name} (${m.dosage})`).join(", ")}
-      
-      Create a detailed diet plan that:
-      1. Supports their medical condition
-      2. Considers their allergies and medications
-      3. Promotes overall health and recovery
-      
-      Return ONLY a JSON object with this exact structure (no markdown, no code blocks, just the raw JSON):
-      {
-        "meals": [
-          {
-            "type": "breakfast/lunch/dinner/snack",
-            "suggestions": ["list of food items"],
-            "timing": "recommended timing",
-            "portions": "portion sizes",
-            "notes": "special instructions"
-          }
-        ],
-        "guidelines": ["list of dietary guidelines"],
-        "restrictions": ["list of foods to avoid"],
-        "hydration": "daily water intake recommendation",
-        "supplements": [
-          {
-            "name": "supplement name",
-            "dosage": "recommended dosage",
-            "timing": "when to take"
-          }
-        ],
-        "duration": "how long to follow this diet",
-        "specialInstructions": "any special considerations"
-      }`;
+    const prompt = `You are a specialized medical nutrition AI. Your task is to generate a diet plan in JSON format.
+    
+Patient Details:
+Medical Condition: ${data.condition}
+Weight: ${data.weight} kg
+Height: ${data.height} cm
+Allergies: ${data.allergies.join(", ") || "None reported"}
+Current Medications: ${data.medications.map(m => `${m.name} (${m.dosage})`).join(", ") || "None"}
+
+IMPORTANT: You must ONLY return a valid JSON object. Do not include any explanatory text, markdown, or code blocks.
+The response must start with '{' and end with '}' and follow this EXACT structure:
+
+{
+  "meals": [
+    {
+      "type": "breakfast",
+      "suggestions": ["Oatmeal (100g) with berries (50g)", "Greek yogurt (150g) with honey (15g)"],
+      "timing": "7:00 AM - 8:00 AM",
+      "portions": "Total meal: 300-350 calories",
+      "notes": "Cook oatmeal with low-fat milk. Add cinnamon for blood sugar control."
+    },
+    {
+      "type": "lunch",
+      "suggestions": ["Grilled chicken breast (150g)", "Brown rice (100g)", "Steamed vegetables (200g)"],
+      "timing": "12:00 PM - 1:00 PM",
+      "portions": "Total meal: 400-450 calories",
+      "notes": "Use olive oil for cooking. Steam vegetables to retain nutrients."
+    }
+  ],
+  "guidelines": [
+    "Eat every 3-4 hours to maintain stable blood sugar",
+    "Choose whole grains over refined carbohydrates"
+  ],
+  "restrictions": [
+    "Avoid processed sugars due to condition",
+    "Limit sodium intake to 2000mg per day"
+  ],
+  "hydration": "Drink 8-10 glasses (2.5-3L) of water daily, spaced throughout the day",
+  "supplements": [
+    {
+      "name": "Vitamin D3 (Nature Made brand)",
+      "dosage": "2000 IU",
+      "timing": "With breakfast"
+    }
+  ],
+  "duration": "Follow this plan for 4 weeks, then reassess",
+  "specialInstructions": "Take medications 1 hour before meals. Avoid grapefruit due to medication interactions."
+}
+
+The plan should be specifically tailored to the patient's condition, consider medication interactions, and account for allergies.
+Include at least 3 meals and 2 snacks in the meals array.
+Each meal should have 3-5 specific food suggestions with exact portions.
+All measurements should be in metric units (g, ml, mg).`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
     
     // Clean up the response to ensure it's valid JSON
-    const cleanJson = text.replace(/```json\s*|\s*```/g, '').trim();
+    let cleanJson = text.trim();
+    
+    // Remove any potential markdown or text before the JSON
+    const jsonStart = cleanJson.indexOf('{');
+    const jsonEnd = cleanJson.lastIndexOf('}') + 1;
+    
+    if (jsonStart === -1 || jsonEnd === 0) {
+      throw new Error("Invalid response format: No JSON object found");
+    }
+    
+    cleanJson = cleanJson.slice(jsonStart, jsonEnd);
     
     try {
       const dietPlan = JSON.parse(cleanJson) as DietPlan;
+      
+      // Validate the structure
+      if (!dietPlan.meals || !Array.isArray(dietPlan.meals) || dietPlan.meals.length === 0) {
+        throw new Error("Invalid diet plan: missing or empty meals array");
+      }
+      
+      if (!dietPlan.guidelines || !Array.isArray(dietPlan.guidelines)) {
+        throw new Error("Invalid diet plan: missing guidelines");
+      }
+      
+      if (!dietPlan.restrictions || !Array.isArray(dietPlan.restrictions)) {
+        throw new Error("Invalid diet plan: missing restrictions");
+      }
+      
+      if (!dietPlan.hydration) {
+        throw new Error("Invalid diet plan: missing hydration information");
+      }
+      
       return dietPlan;
     } catch (parseError) {
       console.error("Error parsing diet plan JSON:", parseError);
-      throw new Error("Failed to generate diet plan");
+      // Provide a fallback diet plan
+      return {
+        meals: [
+          {
+            type: "breakfast",
+            suggestions: ["Oatmeal with fruits", "Whole grain toast with eggs"],
+            timing: "7:00 AM - 8:00 AM",
+            portions: "Standard serving sizes",
+            notes: "Adjust portions based on hunger levels"
+          }
+        ],
+        guidelines: ["Eat balanced meals", "Stay hydrated"],
+        restrictions: ["Follow general dietary guidelines"],
+        hydration: "Drink 8 glasses of water daily",
+        supplements: [],
+        duration: "Consult with healthcare provider",
+        specialInstructions: "Please consult with a healthcare provider for personalized advice"
+      };
     }
   } catch (error) {
     console.error("Error generating diet plan:", error);

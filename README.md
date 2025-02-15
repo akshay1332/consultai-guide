@@ -1,69 +1,181 @@
-# Welcome to your Lovable project
+# ConsultAI Guide - Medical Consultation & Diet Planning Platform
 
-## Project info
+## Overview
 
-**URL**: https://lovable.dev/projects/eb1deba7-dcc9-4f2a-ab48-3fec52487eed
+ConsultAI Guide is a comprehensive medical consultation platform that combines AI-powered medical assessments with personalized diet planning. The platform provides users with virtual medical consultations, generates detailed medical reports, and creates customized diet plans based on individual health conditions and requirements.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+### 1. Virtual Medical Consultations
+- Real-time chat interface with AI medical assistant
+- Dynamic symptom assessment and analysis
+- Comprehensive medical report generation
+- Session history tracking and management
+- Secure and private conversations
 
-**Use Lovable**
+### 2. Medical Reports
+- Detailed diagnosis and condition analysis
+- Medication recommendations with dosage instructions
+- Treatment plans and follow-up schedules
+- Precautions and warning signs
+- Downloadable report formats
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/eb1deba7-dcc9-4f2a-ab48-3fec52487eed) and start prompting.
+### 3. Personalized Diet Plans
+- Condition-specific diet recommendations
+- Detailed meal planning with exact portions
+- Nutritional guidelines and restrictions
+- Supplement recommendations
+- Food-drug interaction considerations
+- Hydration schedules
 
-Changes made via Lovable will be committed automatically to this repo.
+### 4. Dashboard Features
+- User profile management
+- Consultation history
+- Report archives
+- Diet plan tracking
+- Assessment history
+- Basic health information storage
 
-**Use your preferred IDE**
+## Technology Stack
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Frontend
+- React with TypeScript
+- Framer Motion for animations
+- Tailwind CSS for styling
+- Shadcn UI components
+- Lucide icons
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Backend
+- Supabase for database and authentication
+- Google's Generative AI (Gemini Pro) for medical analysis
+- RESTful API architecture
 
-Follow these steps:
+### Key Libraries
+- date-fns for date manipulation
+- @google/generative-ai for AI integration
+- Various UI components from shadcn/ui
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## Getting Started
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Prerequisites
+- Node.js (v14 or higher)
+- npm or yarn
+- Supabase account
+- Google AI (Gemini) API key
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Installation
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/consultai-guide.git
+cd consultai-guide
 ```
 
-**Edit a file directly in GitHub**
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+3. Set up environment variables:
+Create a `.env` file in the root directory with the following variables:
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_GEMINI_API_KEY=your_gemini_api_key
+VITE_GOOGLE_PLACES_API_KEY=your_google_places_api_key
+```
 
-**Use GitHub Codespaces**
+4. Start the development server:
+```bash
+npm run dev
+# or
+yarn dev
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Project Structure
 
-## What technologies are used for this project?
+```
+src/
+├── components/
+│   ├── chat/
+│   ├── dashboard/
+│   ├── landing/
+│   └── ui/
+├── lib/
+│   ├── auth.ts
+│   ├── gemini.ts
+│   ├── diet-plans.ts
+│   ├── reports.ts
+│   └── supabase.ts
+├── pages/
+│   └── dashboard/
+├── types/
+└── hooks/
+```
 
-This project is built with .
+## Key Features Implementation
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Medical Consultation
+- Real-time chat interface with AI
+- Dynamic question generation based on symptoms
+- Medical report generation using Gemini AI
+- Session management and history tracking
 
-## How can I deploy this project?
+### Diet Plan Generation
+- Condition-specific diet recommendations
+- Detailed meal planning with portions
+- Nutritional guidelines and restrictions
+- Food-drug interaction analysis
+- Supplement recommendations
 
-Simply open [Lovable](https://lovable.dev/projects/eb1deba7-dcc9-4f2a-ab48-3fec52487eed) and click on Share -> Publish.
+### Report Management
+- Automated report generation
+- PDF export functionality
+- Historical report tracking
+- Diet plan integration
 
-## I want to use a custom domain - is that possible?
+## Security Features
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+- Secure authentication via Supabase
+- Protected routes and authorized access
+- Encrypted data transmission
+- HIPAA-compliant data storage (where applicable)
+- User data privacy protection
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+## Acknowledgments
+
+- Google Generative AI (Gemini) for medical analysis
+- Supabase for backend infrastructure
+- Shadcn UI for component library
+- All contributors and maintainers
+
+## Support
+
+For support, please email support@consultai-guide.com or open an issue in the repository.
+
+## Roadmap
+
+- [ ] Integration with wearable devices
+- [ ] Mobile application development
+- [ ] Multi-language support
+- [ ] Video consultation features
+- [ ] Integration with electronic health records
+- [ ] Advanced analytics dashboard
+
+## Disclaimer
+
+This application is for informational purposes only and is not intended to replace professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.
