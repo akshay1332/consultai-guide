@@ -3,6 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import {
   LayoutDashboard,
   FileText,
@@ -18,6 +19,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
+  Stethoscope,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -40,8 +42,35 @@ export default function DashboardSidebar() {
   const [activeItem, setActiveItem] = useState<string>("/dashboard");
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/");
+    try {
+      // First check if we have a session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        throw sessionError;
+      }
+
+      if (!session) {
+        // If no session, just navigate to home
+        navigate("/");
+        return;
+      }
+
+      // Proceed with sign out
+      const { error } = await supabase.auth.signOut({
+        scope: 'local'  // Use local scope instead of global
+      });
+      
+      if (error) throw error;
+      
+      toast.success("Successfully signed out");
+      navigate("/");
+    } catch (error: any) {
+      console.error("Error signing out:", error.message);
+      toast.error("Error signing out: " + error.message);
+      // Still try to navigate even if there's an error
+      navigate("/");
+    }
   };
 
   const sidebarLinks = [
@@ -79,6 +108,13 @@ export default function DashboardSidebar() {
       icon: Utensils,
       color: "#DB2777",
       description: "Personalized nutrition plans"
+    },
+    {
+      label: "Nearby Aid",
+      href: "/dashboard/nearby-aid",
+      icon: Stethoscope,
+      color: "#059669",
+      description: "Find nearby medical facilities"
     },
     {
       label: "Profile",

@@ -17,6 +17,7 @@ import Assessments from "./pages/dashboard/Assessments";
 import Profile from "./pages/dashboard/Profile";
 import BasicInfo from "./pages/dashboard/BasicInfo";
 import DietPlans from "./pages/dashboard/DietPlans";
+import NearbyAid from "./pages/dashboard/NearbyAid";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -42,6 +43,7 @@ function App() {
                   <Route path="sessions" element={<Sessions />} />
                   <Route path="assessments" element={<Assessments />} />
                   <Route path="profile" element={<Profile />} />
+                  <Route path='nearby-aid' element={<NearbyAid/>} />
                   <Route path="diet-plans" element={<DietPlans />} />
                   <Route path="basic-info" element={<BasicInfo />} />
                 </Route>

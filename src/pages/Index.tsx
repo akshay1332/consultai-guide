@@ -33,12 +33,14 @@ export default function Index() {
       
       <HeroSection onGetStarted={handleGetStarted} />
       <MarqueeSection />
-      <AboutUsSection />
-      <ExpertsSection />
       <FeaturesSection />
-      <TestimonialsSection />
+      <ExpertsSection />
+      
+      <AboutUsSection />
+      
       <PricingSection />
       <CallToAction onGetStarted={handleGetStarted} />
+      <TestimonialsSection />
       <Footer />
     </div>
   );
