@@ -1,8 +1,10 @@
+
 export interface Profile {
   id: string;
   email: string;
   full_name: string;
   location: string;
+  avatar_url?: string;
   created_at: string;
   updated_at: string;
 }
@@ -15,8 +17,10 @@ export interface BasicInformation {
   height: number;
   weight: number;
   blood_type: string;
-  allergies: string;
-  medical_conditions: string;
+  allergies: string[];
+  medical_conditions: string[];
+  exercise_frequency?: string;
+  dietary_preferences?: string[];
   emergency_contact: {
     name: string;
     phone: string;
@@ -55,9 +59,42 @@ export interface Message {
   message_type: string;
 }
 
-export interface Report {
+export interface StoredReport {
   id: string;
   session_id: string;
-  report_data: any;
+  report_data: {
+    estimatedCondition: string;
+    symptomsAnalysis: string;
+    diagnosis: string;
+    treatment: string[];
+    medications: Array<{
+      name: string;
+      dosage: string;
+      duration: string;
+      instructions: string;
+    }>;
+    recommendations: string[];
+    precautions: string;
+    followUp: string;
+    dietPlan?: {
+      meals: Array<{
+        type: string;
+        suggestions: string[];
+        timing: string;
+        portions: string;
+        notes: string;
+      }>;
+      guidelines: string[];
+      restrictions: string[];
+      hydration: string;
+      supplements: Array<{
+        name: string;
+        dosage: string;
+        timing: string;
+      }>;
+      duration: string;
+      specialInstructions: string;
+    };
+  };
   generated_at: string;
-} 
+}

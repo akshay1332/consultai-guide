@@ -69,7 +69,7 @@ export interface ReportData {
   };
 }
 
-interface MedicalReport {
+export interface MedicalReport {
   diagnosis: string;
   recommendations: string[];
   medications: Array<{
@@ -483,4 +483,4 @@ Format the response in a structured way.`;
     console.error('Error processing medical assessment:', error);
     throw new Error('Failed to process medical assessment');
   }
-} 
+}
