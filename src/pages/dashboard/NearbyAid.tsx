@@ -1,11 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import { MapPin, Phone, Clock, Star, MapPinOff, Search, Loader2, Globe, Info, Building2, Stethoscope } from "lucide-react";
+import { MapPin, Phone, Clock, Star, MapPinOff, Search, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -22,15 +21,6 @@ interface Facility {
     open_now?: boolean;
     hours?: string;
   };
-  address?: {
-    street?: string;
-    city?: string;
-    state?: string;
-    postcode?: string;
-    country?: string;
-  };
-  specialties?: string[];
-  emergency_service?: boolean;
   geometry: {
     location: {
       lat: number;
@@ -39,6 +29,7 @@ interface Facility {
   };
 }
 
+// Default center (will be updated with user's location)
 const defaultCenter = { lat: 20.5937, lng: 78.9629 }; // Center of India
 
 interface LocationDialogProps {
@@ -51,6 +42,7 @@ interface LocationDialogProps {
   handlePincodeSearch: () => void;
 }
 
+// Location Dialog Component
 const LocationDialog: React.FC<LocationDialogProps> = ({
   showLocationDialog,
   setShowLocationDialog,
@@ -112,6 +104,7 @@ const LocationDialog: React.FC<LocationDialogProps> = ({
   );
 };
 
+// Map Update Component
 const MapUpdater: React.FC<{ center: { lat: number; lng: number } }> = ({ center }) => {
   const map = useMap();
   
@@ -124,6 +117,7 @@ const MapUpdater: React.FC<{ center: { lat: number; lng: number } }> = ({ center
   return null;
 };
 
+// Function to calculate distance between two points
 const calculateDistance = (
   lat1: number,
   lon1: number,
@@ -144,38 +138,12 @@ const calculateDistance = (
   return Math.round(distance * 10) / 10;
 };
 
+// Format distance for display
 const formatDistance = (distance: number): string => {
   if (distance < 1) {
     return `${Math.round(distance * 1000)} m`;
   }
   return `${distance} km`;
-};
-
-const FacilityStatusBadge: React.FC<{ isOpen?: boolean }> = ({ isOpen }) => {
-  if (isOpen === undefined) return null;
-  
-  return (
-    <Badge variant={isOpen ? "default" : "destructive"}>
-      {isOpen ? "Open Now" : "Closed"}
-    </Badge>
-  );
-};
-
-const FacilityTypeIcon: React.FC<{ type: string }> = ({ type }) => {
-  const getIcon = () => {
-    switch (type.toLowerCase()) {
-      case 'hospital':
-        return <Building2 className="h-4 w-4" />;
-      case 'clinic':
-        return <Stethoscope className="h-4 w-4" />;
-      case 'pharmacy':
-        return <Info className="h-4 w-4" />;
-      default:
-        return <MapPin className="h-4 w-4" />;
-    }
-  };
-
-  return getIcon();
 };
 
 const NearbyAid = () => {
@@ -189,6 +157,7 @@ const NearbyAid = () => {
   const [pincode, setPincode] = useState("");
   const [searchMode, setSearchMode] = useState<"auto" | "manual">("auto");
 
+  // Function to convert pincode to coordinates using Nominatim
   const getLocationFromPincode = useCallback(async (pincode: string) => {
     try {
       const response = await fetch(
@@ -213,22 +182,28 @@ const NearbyAid = () => {
     setError(null);
 
     try {
+      // Enhanced Overpass API query to find more medical facilities
       const query = `
         [out:json][timeout:25];
         (
+          // Hospitals and clinics
           node["amenity"~"hospital|clinic|doctors|dentist"]
             (around:10000,${position.lat},${position.lng});
           way["amenity"~"hospital|clinic|doctors|dentist"]
             (around:10000,${position.lat},${position.lng});
+          relation["amenity"~"hospital|clinic|doctors|dentist"]
+            (around:10000,${position.lat},${position.lng});
           
+          // Pharmacies and medical stores
           node["shop"~"pharmacy|chemist|medical_supply"]
             (around:10000,${position.lat},${position.lng});
           way["shop"~"pharmacy|chemist|medical_supply"]
             (around:10000,${position.lat},${position.lng});
           
-          node["healthcare"=*]
+          // Healthcare facilities
+          node["healthcare"~"hospital|clinic|doctor|pharmacy|dentist|physiotherapist|alternative|centre"]
             (around:10000,${position.lat},${position.lng});
-          way["healthcare"=*]
+          way["healthcare"~"hospital|clinic|doctor|pharmacy|dentist|physiotherapist|alternative|centre"]
             (around:10000,${position.lat},${position.lng});
         );
         out body;
@@ -252,20 +227,24 @@ const NearbyAid = () => {
             element.tags && 
             element.tags.name && 
             (
-              (element.lat && element.lon) || 
-              (element.center && element.center.lat && element.center.lon)
+              (element.lat && element.lon) || // For nodes
+              (element.center && element.center.lat && element.center.lon) // For ways and relations
             )
           )
           .map((element: any) => {
-            const address = {
-              street: element.tags['addr:street'] || '',
-              housenumber: element.tags['addr:housenumber'] || '',
-              city: element.tags['addr:city'] || '',
-              state: element.tags['addr:state'] || '',
-              postcode: element.tags['addr:postcode'] || '',
-              country: element.tags['addr:country'] || 'India'
-            };
+            // Construct detailed address
+            const address = [
+              element.tags['addr:street'],
+              element.tags['addr:housenumber'],
+              element.tags['addr:city'],
+              element.tags['addr:district'],
+              element.tags['addr:postcode'],
+              element.tags['addr:state']
+            ]
+              .filter(Boolean)
+              .join(', ');
 
+            // Determine facility type
             let facilityType = 'Medical Facility';
             if (element.tags.amenity === 'hospital') facilityType = 'Hospital';
             else if (element.tags.amenity === 'clinic') facilityType = 'Clinic';
@@ -275,33 +254,18 @@ const NearbyAid = () => {
             else if (element.tags.shop === 'medical_supply') facilityType = 'Medical Store';
             else if (element.tags.healthcare) facilityType = element.tags.healthcare.charAt(0).toUpperCase() + element.tags.healthcare.slice(1);
 
-            const opening_hours = element.tags.opening_hours ? {
-              open_now: true,
-              hours: element.tags.opening_hours
-            } : undefined;
-
-            const specialties = element.tags.healthcare_speciality ? 
-              element.tags.healthcare_speciality.split(';').map((s: string) => s.trim()) : 
-              [];
-
             return {
               id: element.id.toString(),
               name: element.tags.name,
-              vicinity: `${address.street} ${address.housenumber}`.trim(),
-              address: {
-                street: `${address.street} ${address.housenumber}`.trim(),
-                city: address.city,
-                state: address.state,
-                postcode: address.postcode,
-                country: address.country
-              },
+              vicinity: address || element.tags.address || 'Address not available',
               facilityType,
               phone: element.tags.phone || element.tags['contact:phone'],
               website: element.tags.website || element.tags['contact:website'],
               rating: null,
-              opening_hours,
-              specialties,
-              emergency_service: element.tags.emergency === 'yes',
+              opening_hours: {
+                open_now: element.tags.opening_hours ? true : undefined,
+                hours: element.tags.opening_hours
+              },
               geometry: {
                 location: {
                   lat: element.lat || element.center?.lat,
@@ -373,6 +337,7 @@ const NearbyAid = () => {
   }, [searchNearbyFacilities]);
 
   useEffect(() => {
+    // Set custom icon for facility markers
     const defaultIcon = L.icon({
       iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
       iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
@@ -383,6 +348,7 @@ const NearbyAid = () => {
       shadowSize: [41, 41]
     });
 
+    // Set custom icon for current location
     const currentLocationIcon = L.icon({
       iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSI4IiBmaWxsPSIjZGMzNTQ1IiBmaWxsLW9wYWNpdHk9IjAuMiIvPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjQiIGZpbGw9IiNkYzM1NDUiLz48L3N2Zz4=',
       iconSize: [24, 24],
@@ -391,6 +357,7 @@ const NearbyAid = () => {
 
     L.Marker.prototype.options.icon = defaultIcon;
     
+    // Store the current location icon for use
     (window as any).currentLocationIcon = currentLocationIcon;
   }, []);
 
@@ -418,6 +385,7 @@ const NearbyAid = () => {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           
+          {/* Current Location Marker */}
           {!showLocationDialog && (
             <>
               <Marker
@@ -452,84 +420,45 @@ const NearbyAid = () => {
                 }}
               >
                 <Popup>
-                  <div className="p-4 max-w-sm">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="font-semibold text-lg">{facility.name}</h3>
-                        <div className="flex items-center gap-2 mt-1">
-                          <FacilityTypeIcon type={facility.facilityType} />
-                          <p className="text-sm text-blue-600 font-medium">{facility.facilityType}</p>
-                        </div>
-                      </div>
-                      <FacilityStatusBadge isOpen={facility.opening_hours?.open_now} />
-                    </div>
-
-                    <div className="mt-4 space-y-3">
-                      <div className="flex items-start gap-2">
-                        <MapPin className="h-4 w-4 mt-1 text-gray-500" />
-                        <div className="text-sm text-gray-600">
-                          <p>{facility.address?.street}</p>
-                          <p>{facility.address?.city}, {facility.address?.state}</p>
-                          <p>{facility.address?.postcode}, {facility.address?.country}</p>
-                        </div>
-                      </div>
-
-                      <p className="text-sm text-green-600 font-medium">
-                        {formatDistance(calculateDistance(
-                          center.lat,
-                          center.lng,
-                          facility.geometry.location.lat,
-                          facility.geometry.location.lng
-                        ))} away
-                      </p>
-
-                      {facility.opening_hours?.hours && (
-                        <div className="flex items-start gap-2">
-                          <Clock className="h-4 w-4 mt-1 text-gray-500" />
-                          <p className="text-sm text-gray-600">{facility.opening_hours.hours}</p>
-                        </div>
-                      )}
-
+                  <div className="p-3">
+                    <h3 className="font-semibold text-lg">{facility.name}</h3>
+                    <p className="text-sm text-blue-600 font-medium mt-1">{facility.facilityType}</p>
+                    <p className="text-sm text-gray-600 mt-2">{facility.vicinity}</p>
+                    
+                    {/* Distance from current location */}
+                    <p className="text-sm text-green-600 font-medium mt-2">
+                      {formatDistance(calculateDistance(
+                        center.lat,
+                        center.lng,
+                        facility.geometry.location.lat,
+                        facility.geometry.location.lng
+                      ))} away
+                    </p>
+                    
+                    <div className="mt-2 space-y-1">
                       {facility.phone && (
-                        <div className="flex items-center gap-2">
-                          <Phone className="h-4 w-4 text-gray-500" />
-                          <a href={`tel:${facility.phone}`} className="text-sm text-blue-500 hover:underline">
+                        <p className="text-sm flex items-center">
+                          <Phone className="h-4 w-4 mr-1" />
+                          <a href={`tel:${facility.phone}`} className="text-blue-500 hover:underline">
                             {facility.phone}
                           </a>
-                        </div>
+                        </p>
                       )}
-
+                      
                       {facility.website && (
-                        <div className="flex items-center gap-2">
-                          <Globe className="h-4 w-4 text-gray-500" />
-                          <a
-                            href={facility.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm text-blue-500 hover:underline"
-                          >
+                        <p className="text-sm">
+                          <a href={facility.website} target="_blank" rel="noopener noreferrer" 
+                             className="text-blue-500 hover:underline">
                             Visit Website
                           </a>
-                        </div>
+                        </p>
                       )}
 
-                      {facility.specialties && facility.specialties.length > 0 && (
-                        <div className="mt-2">
-                          <p className="text-sm font-medium mb-1">Specialties:</p>
-                          <div className="flex flex-wrap gap-1">
-                            {facility.specialties.map((specialty, index) => (
-                              <Badge key={index} variant="secondary" className="text-xs">
-                                {specialty}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {facility.emergency_service && (
-                        <Badge variant="destructive" className="mt-2">
-                          24/7 Emergency Services
-                        </Badge>
+                      {facility.opening_hours?.hours && (
+                        <p className="text-sm flex items-center">
+                          <Clock className="inline-block mr-1 h-4 w-4" />
+                          {facility.opening_hours.hours}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -550,4 +479,4 @@ const NearbyAid = () => {
   );
 };
 
-export default NearbyAid;
+export default NearbyAid; 

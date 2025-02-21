@@ -1,9 +1,8 @@
-
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
-export function useRealtimeSubscription<T extends { id: string }>(
+export function useRealtimeSubscription<T>(
   table: string,
   userId: string,
   column: string = 'user_id'
@@ -24,7 +23,7 @@ export function useRealtimeSubscription<T extends { id: string }>(
           .eq(column, userId);
 
         if (queryError) throw queryError;
-        setData(initialData as T[] || []);
+        setData(initialData || []);
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Unknown error occurred'));
       } finally {
@@ -49,12 +48,12 @@ export function useRealtimeSubscription<T extends { id: string }>(
             } else if (payload.eventType === 'UPDATE') {
               setData((current) =>
                 current.map((item) =>
-                  item.id === (payload.new as T).id ? (payload.new as T) : item
+                  (item as any).id === payload.new.id ? payload.new : item
                 )
               );
             } else if (payload.eventType === 'DELETE') {
               setData((current) =>
-                current.filter((item) => item.id !== (payload.old as T).id)
+                current.filter((item) => (item as any).id !== payload.old.id)
               );
             }
           }
@@ -71,4 +70,4 @@ export function useRealtimeSubscription<T extends { id: string }>(
   }, [table, userId, column]);
 
   return { data, loading, error };
-}
+} 
