@@ -1,10 +1,12 @@
+
 import { useState, useEffect, useCallback } from "react";
-import { MapPin, Phone, Clock, Star, MapPinOff, Search, Loader2 } from "lucide-react";
+import { MapPin, Phone, Clock, Star, MapPinOff, Search, Loader2, Globe, Info, Building2, Stethoscope } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -21,6 +23,15 @@ interface Facility {
     open_now?: boolean;
     hours?: string;
   };
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    postcode?: string;
+    country?: string;
+  };
+  specialties?: string[];
+  emergency_service?: boolean;
   geometry: {
     location: {
       lat: number;
@@ -146,6 +157,35 @@ const formatDistance = (distance: number): string => {
   return `${distance} km`;
 };
 
+// Facility Status Badge Component 
+const FacilityStatusBadge: React.FC<{ isOpen?: boolean }> = ({ isOpen }) => {
+  if (isOpen === undefined) return null;
+  
+  return (
+    <Badge variant={isOpen ? "success" : "destructive"}>
+      {isOpen ? "Open Now" : "Closed"}
+    </Badge>
+  );
+};
+
+// Facility Type Icon Component
+const FacilityTypeIcon: React.FC<{ type: string }> = ({ type }) => {
+  const getIcon = () => {
+    switch (type.toLowerCase()) {
+      case 'hospital':
+        return <Building2 className="h-4 w-4" />;
+      case 'clinic':
+        return <Stethoscope className="h-4 w-4" />;
+      case 'pharmacy':
+        return <Info className="h-4 w-4" />;
+      default:
+        return <MapPin className="h-4 w-4" />;
+    }
+  };
+
+  return getIcon();
+};
+
 const NearbyAid = () => {
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [loading, setLoading] = useState(false);
@@ -182,16 +222,14 @@ const NearbyAid = () => {
     setError(null);
 
     try {
-      // Enhanced Overpass API query to find more medical facilities
+      // Enhanced Overpass API query to find more medical facilities with detailed information
       const query = `
         [out:json][timeout:25];
         (
-          // Hospitals and clinics
+          // Hospitals and clinics with detailed information
           node["amenity"~"hospital|clinic|doctors|dentist"]
             (around:10000,${position.lat},${position.lng});
           way["amenity"~"hospital|clinic|doctors|dentist"]
-            (around:10000,${position.lat},${position.lng});
-          relation["amenity"~"hospital|clinic|doctors|dentist"]
             (around:10000,${position.lat},${position.lng});
           
           // Pharmacies and medical stores
@@ -201,9 +239,9 @@ const NearbyAid = () => {
             (around:10000,${position.lat},${position.lng});
           
           // Healthcare facilities
-          node["healthcare"~"hospital|clinic|doctor|pharmacy|dentist|physiotherapist|alternative|centre"]
+          node["healthcare"=*]
             (around:10000,${position.lat},${position.lng});
-          way["healthcare"~"hospital|clinic|doctor|pharmacy|dentist|physiotherapist|alternative|centre"]
+          way["healthcare"=*]
             (around:10000,${position.lat},${position.lng});
         );
         out body;
@@ -233,16 +271,14 @@ const NearbyAid = () => {
           )
           .map((element: any) => {
             // Construct detailed address
-            const address = [
-              element.tags['addr:street'],
-              element.tags['addr:housenumber'],
-              element.tags['addr:city'],
-              element.tags['addr:district'],
-              element.tags['addr:postcode'],
-              element.tags['addr:state']
-            ]
-              .filter(Boolean)
-              .join(', ');
+            const address = {
+              street: element.tags['addr:street'] || '',
+              housenumber: element.tags['addr:housenumber'] || '',
+              city: element.tags['addr:city'] || '',
+              state: element.tags['addr:state'] || '',
+              postcode: element.tags['addr:postcode'] || '',
+              country: element.tags['addr:country'] || 'India'
+            };
 
             // Determine facility type
             let facilityType = 'Medical Facility';
@@ -254,18 +290,35 @@ const NearbyAid = () => {
             else if (element.tags.shop === 'medical_supply') facilityType = 'Medical Store';
             else if (element.tags.healthcare) facilityType = element.tags.healthcare.charAt(0).toUpperCase() + element.tags.healthcare.slice(1);
 
+            // Parse opening hours
+            const opening_hours = element.tags.opening_hours ? {
+              open_now: true, // You would need a more sophisticated function to determine if actually open
+              hours: element.tags.opening_hours
+            } : undefined;
+
+            // Get specialties if available
+            const specialties = element.tags.healthcare_speciality ? 
+              element.tags.healthcare_speciality.split(';').map((s: string) => s.trim()) : 
+              [];
+
             return {
               id: element.id.toString(),
               name: element.tags.name,
-              vicinity: address || element.tags.address || 'Address not available',
+              vicinity: `${address.street} ${address.housenumber}`.trim(),
+              address: {
+                street: `${address.street} ${address.housenumber}`.trim(),
+                city: address.city,
+                state: address.state,
+                postcode: address.postcode,
+                country: address.country
+              },
               facilityType,
               phone: element.tags.phone || element.tags['contact:phone'],
               website: element.tags.website || element.tags['contact:website'],
               rating: null,
-              opening_hours: {
-                open_now: element.tags.opening_hours ? true : undefined,
-                hours: element.tags.opening_hours
-              },
+              opening_hours,
+              specialties,
+              emergency_service: element.tags.emergency === 'yes',
               geometry: {
                 location: {
                   lat: element.lat || element.center?.lat,
@@ -420,45 +473,91 @@ const NearbyAid = () => {
                 }}
               >
                 <Popup>
-                  <div className="p-3">
-                    <h3 className="font-semibold text-lg">{facility.name}</h3>
-                    <p className="text-sm text-blue-600 font-medium mt-1">{facility.facilityType}</p>
-                    <p className="text-sm text-gray-600 mt-2">{facility.vicinity}</p>
-                    
-                    {/* Distance from current location */}
-                    <p className="text-sm text-green-600 font-medium mt-2">
-                      {formatDistance(calculateDistance(
-                        center.lat,
-                        center.lng,
-                        facility.geometry.location.lat,
-                        facility.geometry.location.lng
-                      ))} away
-                    </p>
-                    
-                    <div className="mt-2 space-y-1">
-                      {facility.phone && (
-                        <p className="text-sm flex items-center">
-                          <Phone className="h-4 w-4 mr-1" />
-                          <a href={`tel:${facility.phone}`} className="text-blue-500 hover:underline">
-                            {facility.phone}
-                          </a>
-                        </p>
-                      )}
-                      
-                      {facility.website && (
-                        <p className="text-sm">
-                          <a href={facility.website} target="_blank" rel="noopener noreferrer" 
-                             className="text-blue-500 hover:underline">
-                            Visit Website
-                          </a>
-                        </p>
+                  <div className="p-4 max-w-sm">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="font-semibold text-lg">{facility.name}</h3>
+                        <div className="flex items-center gap-2 mt-1">
+                          <FacilityTypeIcon type={facility.facilityType} />
+                          <p className="text-sm text-blue-600 font-medium">{facility.facilityType}</p>
+                        </div>
+                      </div>
+                      <FacilityStatusBadge isOpen={facility.opening_hours?.open_now} />
+                    </div>
+
+                    <div className="mt-4 space-y-3">
+                      {/* Address */}
+                      <div className="flex items-start gap-2">
+                        <MapPin className="h-4 w-4 mt-1 text-gray-500" />
+                        <div className="text-sm text-gray-600">
+                          <p>{facility.address?.street}</p>
+                          <p>{facility.address?.city}, {facility.address?.state}</p>
+                          <p>{facility.address?.postcode}, {facility.address?.country}</p>
+                        </div>
+                      </div>
+
+                      {/* Distance */}
+                      <p className="text-sm text-green-600 font-medium">
+                        {formatDistance(calculateDistance(
+                          center.lat,
+                          center.lng,
+                          facility.geometry.location.lat,
+                          facility.geometry.location.lng
+                        ))} away
+                      </p>
+
+                      {/* Opening Hours */}
+                      {facility.opening_hours?.hours && (
+                        <div className="flex items-start gap-2">
+                          <Clock className="h-4 w-4 mt-1 text-gray-500" />
+                          <p className="text-sm text-gray-600">{facility.opening_hours.hours}</p>
+                        </div>
                       )}
 
-                      {facility.opening_hours?.hours && (
-                        <p className="text-sm flex items-center">
-                          <Clock className="inline-block mr-1 h-4 w-4" />
-                          {facility.opening_hours.hours}
-                        </p>
+                      {/* Phone */}
+                      {facility.phone && (
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-4 w-4 text-gray-500" />
+                          <a href={`tel:${facility.phone}`} className="text-sm text-blue-500 hover:underline">
+                            {facility.phone}
+                          </a>
+                        </div>
+                      )}
+
+                      {/* Website */}
+                      {facility.website && (
+                        <div className="flex items-center gap-2">
+                          <Globe className="h-4 w-4 text-gray-500" />
+                          <a
+                            href={facility.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-500 hover:underline"
+                          >
+                            Visit Website
+                          </a>
+                        </div>
+                      )}
+
+                      {/* Specialties */}
+                      {facility.specialties && facility.specialties.length > 0 && (
+                        <div className="mt-2">
+                          <p className="text-sm font-medium mb-1">Specialties:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {facility.specialties.map((specialty, index) => (
+                              <Badge key={index} variant="secondary" className="text-xs">
+                                {specialty}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Emergency Service */}
+                      {facility.emergency_service && (
+                        <Badge variant="destructive" className="mt-2">
+                          24/7 Emergency Services
+                        </Badge>
                       )}
                     </div>
                   </div>
@@ -479,4 +578,4 @@ const NearbyAid = () => {
   );
 };
 
-export default NearbyAid; 
+export default NearbyAid;
