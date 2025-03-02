@@ -20,6 +20,7 @@ import {
   ChevronRight,
   Menu,
   Stethoscope,
+  Watch,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -108,6 +109,13 @@ export default function DashboardSidebar() {
       icon: Utensils,
       color: "#DB2777",
       description: "Personalized nutrition plans"
+    },
+    {
+      label: "Smart Watch",
+      href: "/dashboard/smart-watch",
+      icon: Watch,
+      color: "#9333EA",
+      description: "Connect and monitor your smart watch"
     },
     {
       label: "Nearby Aid",

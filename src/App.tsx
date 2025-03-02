@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,6 +17,7 @@ import Profile from "./pages/dashboard/Profile";
 import BasicInfo from "./pages/dashboard/BasicInfo";
 import DietPlans from "./pages/dashboard/DietPlans";
 import NearbyAid from "./pages/dashboard/NearbyAid";
+import SmartWatch from "./pages/dashboard/SmartWatch";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -46,6 +46,7 @@ function App() {
                   <Route path='nearby-aid' element={<NearbyAid/>} />
                   <Route path="diet-plans" element={<DietPlans />} />
                   <Route path="basic-info" element={<BasicInfo />} />
+                  <Route path="smart-watch" element={<SmartWatch />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>

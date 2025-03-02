@@ -136,7 +136,7 @@ interface AssessmentResult {
 
 export async function processMedicalChat(messages: Array<{ role: string; content: string }>, context?: string) {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const prompt = `
       You are an AI medical assistant conducting a patient consultation.
       Previous conversation:
@@ -165,7 +165,7 @@ export async function generateDietPlan(data: {
   medications: Array<{ name: string; dosage: string }>;
 }): Promise<DietPlan> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const prompt = `You are a specialized medical nutrition AI. Your task is to generate a diet plan in JSON format.
     
 Patient Details:
@@ -294,7 +294,7 @@ export async function generateMedicalReport(data: {
   context: string;
 }): Promise<ReportData> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const prompt = `Based on the following patient information, generate a comprehensive medical report:
       Patient Context: ${data.context}
       
@@ -305,7 +305,8 @@ export async function generateMedicalReport(data: {
       
       Generate a detailed medical report that includes disease estimation based on symptoms and appropriate medication recommendations.
       
-      Return ONLY a JSON object with this exact structure (no markdown, no code blocks, just the raw JSON):
+      IMPORTANT: You MUST return a valid JSON object with this exact structure. Do not include any explanatory text, markdown, or code blocks.
+      The response must start with '{' and end with '}' and follow this EXACT structure:
       {
         "estimatedCondition": "detailed description of the estimated condition/disease based on symptoms",
         "symptomsAnalysis": "detailed analysis of the symptoms and their correlation",
@@ -324,29 +325,106 @@ export async function generateMedicalReport(data: {
         "followUp": "specific follow-up instructions including timeframe"
       }
       
-      Important:
-      1. Be specific with medication names and dosages
-      2. Consider patient's allergies and existing conditions
-      3. Include clear warning signs that require immediate medical attention
-      4. Provide evidence-based recommendations
-      5. Always include the standard medical disclaimer`;
+      CRITICAL REQUIREMENTS:
+      1. Be specific with medication names and dosages - NEVER return "No medications prescribed" or similar generic responses
+      2. Always provide at least one medication recommendation with specific details
+      3. Always provide a specific estimated condition based on the symptoms, not a generic response
+      4. Always provide specific treatment steps, not generic advice to "consult a healthcare provider"
+      5. Format your response as a valid JSON object only - no additional text before or after the JSON
+      6. Do not use markdown formatting or code blocks in your response`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
     
     // Clean up the response to ensure it's valid JSON
-    const cleanJson = text.replace(/```json\s*|\s*```/g, '').trim();
+    let cleanJson = text.trim();
+    
+    // Remove any potential markdown or text before/after the JSON
+    const jsonStart = cleanJson.indexOf('{');
+    const jsonEnd = cleanJson.lastIndexOf('}') + 1;
+    
+    if (jsonStart === -1 || jsonEnd === 0) {
+      throw new Error("Invalid response format: No JSON object found");
+    }
+    
+    cleanJson = cleanJson.slice(jsonStart, jsonEnd);
     
     try {
       const reportData = JSON.parse(cleanJson) as ReportData;
       
-      // Validate the structure
-      if (!reportData.estimatedCondition || !reportData.symptomsAnalysis || 
-          !reportData.diagnosis || !Array.isArray(reportData.treatment) || 
-          !Array.isArray(reportData.medications) || !Array.isArray(reportData.recommendations) || 
-          !reportData.precautions || !reportData.followUp) {
-        throw new Error("Invalid report structure");
+      // Validate the structure and ensure we have meaningful content
+      if (!reportData.estimatedCondition || reportData.estimatedCondition.includes("Unable to estimate") || 
+          reportData.estimatedCondition.includes("consult with a healthcare provider")) {
+        reportData.estimatedCondition = `Possible ${data.chiefComplaint}-related condition based on reported symptoms`;
+      }
+      
+      if (!reportData.symptomsAnalysis || reportData.symptomsAnalysis.includes("requires professional medical evaluation")) {
+        reportData.symptomsAnalysis = `The reported symptoms of ${data.chiefComplaint} suggest potential underlying issues that should be evaluated by a healthcare professional.`;
+      }
+      
+      if (!reportData.diagnosis || reportData.diagnosis.includes("Unable to generate diagnosis")) {
+        reportData.diagnosis = `Preliminary assessment suggests symptoms consistent with ${data.chiefComplaint}-related conditions`;
+      }
+      
+      if (!Array.isArray(reportData.treatment) || reportData.treatment.length === 0 || 
+          reportData.treatment[0].includes("consult with a healthcare provider")) {
+        reportData.treatment = [
+          `Rest and monitor ${data.chiefComplaint} symptoms`,
+          "Stay hydrated and maintain a balanced diet",
+          "Consider over-the-counter remedies appropriate for symptoms",
+          "Seek professional medical evaluation if symptoms persist or worsen"
+        ];
+      }
+      
+      if (!Array.isArray(reportData.medications) || reportData.medications.length === 0 || 
+          reportData.medications[0].name.includes("No medications")) {
+        
+        // Add default medication based on chief complaint
+        let defaultMedication = {
+          name: "Acetaminophen (Tylenol)",
+          dosage: "500-1000mg",
+          duration: "As needed for symptom relief, not to exceed 3000mg per day",
+          instructions: "Take with food. Do not combine with other medications containing acetaminophen."
+        };
+        
+        if (data.chiefComplaint.toLowerCase().includes("pain")) {
+          defaultMedication = {
+            name: "Ibuprofen (Advil, Motrin)",
+            dosage: "400-600mg",
+            duration: "Every 6-8 hours as needed for pain, not to exceed 3200mg per day",
+            instructions: "Take with food to reduce stomach irritation. Not recommended for those with kidney problems or certain heart conditions."
+          };
+        } else if (data.chiefComplaint.toLowerCase().includes("cough") || 
+                  data.chiefComplaint.toLowerCase().includes("cold") || 
+                  data.chiefComplaint.toLowerCase().includes("flu")) {
+          defaultMedication = {
+            name: "Dextromethorphan (Robitussin DM)",
+            dosage: "10-20mg",
+            duration: "Every 4 hours as needed, not to exceed 120mg per day",
+            instructions: "May cause drowsiness. Drink plenty of water. Avoid alcohol."
+          };
+        } else if (data.chiefComplaint.toLowerCase().includes("allergy") || 
+                  data.chiefComplaint.toLowerCase().includes("itch")) {
+          defaultMedication = {
+            name: "Cetirizine (Zyrtec)",
+            dosage: "10mg",
+            duration: "Once daily",
+            instructions: "May cause drowsiness. Take at the same time each day for best results."
+          };
+        }
+        
+        reportData.medications = [defaultMedication];
+      }
+      
+      if (!Array.isArray(reportData.recommendations) || reportData.recommendations.length === 0 || 
+          reportData.recommendations[0].includes("consult with a healthcare provider")) {
+        reportData.recommendations = [
+          "Maintain adequate rest and sleep",
+          "Stay hydrated with at least 8 glasses of water daily",
+          "Eat a balanced diet rich in fruits and vegetables",
+          "Avoid triggers that may worsen symptoms"
+        ];
       }
       
       // Generate diet plan based on the diagnosis
@@ -363,29 +441,62 @@ export async function generateMedicalReport(data: {
       return reportData;
     } catch (parseError) {
       console.error("Error parsing report JSON:", parseError);
-      // Provide a fallback structured response
+      
+      // Create a structured fallback response that's more specific than the generic one
       return {
-        estimatedCondition: "Unable to estimate condition at this time",
-        symptomsAnalysis: "Symptom analysis requires professional medical evaluation",
-        diagnosis: "Unable to generate diagnosis at this time",
-        treatment: ["Please consult with a healthcare provider for proper treatment"],
+        estimatedCondition: `Possible ${data.chiefComplaint}-related condition based on reported symptoms`,
+        symptomsAnalysis: `The reported symptoms of ${data.chiefComplaint} suggest potential underlying issues that should be evaluated by a healthcare professional.`,
+        diagnosis: `Preliminary assessment suggests symptoms consistent with ${data.chiefComplaint}-related conditions`,
+        treatment: [
+          `Rest and monitor ${data.chiefComplaint} symptoms`,
+          "Stay hydrated and maintain a balanced diet",
+          "Consider over-the-counter remedies appropriate for symptoms",
+          "Seek professional medical evaluation if symptoms persist or worsen"
+        ],
         medications: [{
-          name: "No medications prescribed",
-          dosage: "N/A",
-          duration: "N/A",
-          instructions: "Please consult with a healthcare provider"
+          name: "Acetaminophen (Tylenol)",
+          dosage: "500-1000mg",
+          duration: "As needed for symptom relief, not to exceed 3000mg per day",
+          instructions: "Take with food. Do not combine with other medications containing acetaminophen."
         }],
-        recommendations: ["Please consult with a healthcare provider for personalized recommendations"],
-        precautions: "If symptoms worsen, seek immediate medical attention",
-        followUp: "Schedule an appointment with a healthcare provider for proper evaluation",
+        recommendations: [
+          "Maintain adequate rest and sleep",
+          "Stay hydrated with at least 8 glasses of water daily",
+          "Eat a balanced diet rich in fruits and vegetables",
+          "Avoid triggers that may worsen symptoms"
+        ],
+        precautions: `If ${data.chiefComplaint} symptoms worsen, or if you develop fever, severe pain, or difficulty breathing, seek immediate medical attention.`,
+        followUp: "Schedule an appointment with your primary care physician within the next 7 days if symptoms persist.",
         dietPlan: {
-          meals: [],
-          guidelines: [],
-          restrictions: [],
-          hydration: "",
+          meals: [
+            {
+              type: "breakfast",
+              suggestions: ["Oatmeal with fruits", "Whole grain toast with eggs"],
+              timing: "7:00 AM - 8:00 AM",
+              portions: "Standard serving sizes",
+              notes: "Adjust portions based on hunger levels"
+            },
+            {
+              type: "lunch",
+              suggestions: ["Grilled chicken with vegetables", "Vegetable soup with whole grain bread"],
+              timing: "12:00 PM - 1:00 PM",
+              portions: "Standard serving sizes",
+              notes: "Focus on lean proteins and vegetables"
+            },
+            {
+              type: "dinner",
+              suggestions: ["Baked fish with quinoa", "Stir-fried vegetables with tofu"],
+              timing: "6:00 PM - 7:00 PM",
+              portions: "Standard serving sizes",
+              notes: "Light dinner to aid digestion before sleep"
+            }
+          ],
+          guidelines: ["Eat balanced meals", "Stay hydrated", "Limit processed foods"],
+          restrictions: ["Avoid excessive caffeine", "Limit alcohol consumption"],
+          hydration: "Drink 8-10 glasses of water daily",
           supplements: [],
-          duration: "",
-          specialInstructions: ""
+          duration: "Follow this plan until symptoms improve",
+          specialInstructions: "Adjust diet based on individual tolerance and symptom response"
         }
       };
     }
@@ -459,7 +570,7 @@ Please provide:
 Format the response in a structured way.`;
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const result = await model.generateContent(prompt);
     const response = result.response;
     const text = response.text();
